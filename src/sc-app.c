@@ -49,12 +49,7 @@ static void sc_app_activate(GApplication * app)
 
 
 
-
-
-
-
-
-
+    gtk_widget_show_all(GTK_WIDGET(scwin));
     gtk_window_present(GTK_WINDOW(scwin));
 
 

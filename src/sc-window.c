@@ -1,6 +1,7 @@
 
 #include"sc-window.h"
 #include"sc-app.h"
+#include"sc-canvas.h"
 #include<gdk-pixbuf/gdk-pixbuf.h>
 
 
@@ -18,6 +19,8 @@
 struct _SCWindowPriv{
 
     GdkPixbuf*fullpf;
+    GtkWidget*canvas;
+    GtkWidget*fixed;
     GdkWindow*root_win;
     //list of windows
     GList*rects;
@@ -100,7 +103,7 @@ static void sc_window_init(SCWindow* scwin)
 
     priv->n_rects=0;
     priv->rects=NULL;
-
+    priv->canvas=NULL;
 
     sc_window_setup(scwin);
 
@@ -219,17 +222,6 @@ static void get_all_rects(SCWindow* scwin)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 static gboolean sc_window_motion(GtkWidget*widget,GdkEventMotion*e)
 {
     g_message("Motion.....");
@@ -272,7 +264,6 @@ static gboolean sc_window_button_press(GtkWidget*widget,GdkEventButton*e)
     SCWindowPriv*priv=SC_WINDOW(widget)->priv;
 
 
-
     if(e->type==GDK_BUTTON_PRESS && e->button==GDK_BUTTON_PRIMARY){
     
         priv->button_down=TRUE;
@@ -297,20 +288,48 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
         
         priv->button_down=FALSE;
         priv->rect_selected=TRUE;
+// PPPPPPPPPPPPPP
+// pppppppppppppp
+//
+        priv->canvas=sc_canvas_new(priv->current_rect.x,
+                priv->current_rect.y,
+                priv->current_rect.width,
+                priv->current_rect.height);
+       
+        gtk_widget_show(priv->canvas);
 
+        gtk_container_add(GTK_CONTAINER(widget),GTK_WIDGET(priv->canvas));
+        GtkWidget*button=gtk_button_new_with_label("BUTTON");
+        gtk_widget_show(button);
+
+    g_message("before fixed add to scwin");
+
+        gtk_container_add(GTK_CONTAINER(priv->canvas),button);
+
+        sc_canvas_add_menu(SC_CANVAS(priv->canvas));
+
+        g_message("Button Added!!!!!!!!!!!!!!!");
+        gtk_widget_queue_resize(widget);
     }
 
     if(e->type==GDK_BUTTON_RELEASE && e->button==GDK_BUTTON_SECONDARY){
     
         if(priv->rect_selected && !point_in_rect(&priv->current_rect,(int)e->x,(int)e->y)){
             priv->rect_selected=FALSE;
+
+//PPPPPPPPPPPPPPPPPPPPPP
+////PPPPPPPPPPPPPPPPPPp            
+            gtk_container_remove(GTK_CONTAINER(widget),priv->canvas);
+            sc_canvas_destroy(SC_CANVAS(priv->canvas));
+            priv->canvas=NULL;
+        g_message("Canvas Removed!!!!!!!!!!!!!!!");
         
         }else
         if(!priv->rect_selected){
-           //EEXIT         
+           
            g_message("EXIT....");
-//            gtk_main_quit();        
-            exit(0);
+           GtkApplication*app=gtk_window_get_application(GTK_WINDOW(widget));
+           g_application_quit(G_APPLICATION(app));
         }
 
     }
@@ -330,8 +349,8 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
 
 
 
-    g_message("window draw()");
-
+//    g_message("window draw()");
+g_print("draw()");
   
     GdkRectangle*cur_rect=&priv->current_rect;
 
@@ -439,9 +458,11 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
     cairo_restore(cr);
 
 
+    GTK_WIDGET_CLASS(sc_window_parent_class)->draw(widget,cr);
+//    gtk_container_propagate_draw(GTK_CONTAINER(widget),priv->fixed,cr);
 
 
-    
+//   return TRUE; 
     return FALSE;
 
 }
@@ -454,7 +475,7 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
 void sc_window_setup(SCWindow*scwin)
 {
 
-    g_message("SCWindow Setup...");
+//    g_message("SCWindow Setup...");
 
     SCWindowPriv*priv=scwin->priv;
 
@@ -482,9 +503,15 @@ void sc_window_setup(SCWindow*scwin)
     GdkRGBA color={0,0,0,0};
     gtk_widget_override_background_color(widget,0,&color);
 
+/*
+    priv->canvas=sc_canvas_new(priv->current_rect.x,
+                priv->current_rect.y,
+                priv->current_rect.width,
+                priv->current_rect.height);
 
-    g_message(" ENd SCWindow Setup...");
-
+    priv->fixed=gtk_fixed_new();
+    gtk_container_add(GTK_CONTAINER(scwin),priv->canvas);
+*/
 
 }
 
