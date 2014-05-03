@@ -6,14 +6,6 @@
 
 
 
-enum{
-    NO_TYPE,
-    TYPE_RECT,
-    TYPE_CIRCLE,
-    N_TYPES
-};
-
-
 
 static void sc_operable_interface_init(SCOperableInterface* iface);
 
@@ -35,6 +27,31 @@ static void sc_painter_unrealize(GtkWidget*widget);
 static void sc_painter_map(GtkWidget*widget);
 static void sc_painter_unmap(GtkWidget*widget);
 static void sc_painter_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
+
+
+
+
+
+
+/**/
+
+point*new_point(int x,int y)
+{
+point*p=g_slice_new(point);
+p->x=x;
+p->y=y;
+
+return p;
+
+}
+
+void destroy_point(point*p)
+{
+
+    g_slice_free(point,p);
+
+}
+
 
 
 
@@ -131,9 +148,11 @@ static void sc_painter_init(SCPainter*obj)
     GtkWidget* wobj=GTK_WIDGET(obj);
 
     //obj->painter_type=TYPE_RECT;
-    obj->painter_type=TYPE_CIRCLE;
+//    obj->painter_type=TYPE_CIRCLE;
    
     gtk_widget_set_has_window(wobj,FALSE);
+
+    obj->points=NULL;
 
     obj->line_width=5; 
     obj->color.red=1;
@@ -257,31 +276,29 @@ static gboolean sc_painter_draw(GtkWidget*widget, cairo_t*cr)
 
     gdk_cairo_set_source_rgba(cr,&painter->color);
 
-
     cairo_set_line_width(cr,painter->line_width);
     
+    cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND);
 
-    print_rect(&painter->rectangle);
-
-
-    cairo_save(cr);
-
-    cairo_translate(cr,(double)painter->rectangle.x,(double)painter->rectangle.y);
-    cairo_scale(cr,(painter->rectangle.width),(painter->rectangle.height));
-
-
-    if(painter->painter_type==TYPE_RECT){    
-  
-//    cairo_set_line_width(cr,0.01);
-    cairo_rectangle(cr,0,0,1,1);
-
-    }else if(painter->painter_type==TYPE_CIRCLE){
     
-    cairo_arc(cr,0.5,0.5,0.5,0,2*M_PI);
-    
+    GList*points=painter->points;
+
+    point*p;
+
+    if(points){
+        p=points->data;
+        cairo_move_to(cr,p->x,p->y);
+    }
+    while(points){
+   
+        p=points->data;
+
+        cairo_line_to(cr,p->x,p->y);
+
+        points=points->next;
+
     }
 
-    cairo_restore(cr);
     cairo_stroke(cr);
 
 
@@ -299,15 +316,19 @@ static gboolean sc_painter_press(GtkWidget*widget, GdkEventButton*e)
     SCPainter*painter=SC_PAINTER(widget);
 
     painter->pressed=TRUE;
-    GtkAllocation alloc;
 
-    gtk_widget_get_allocation(widget,&alloc);
 
-    painter->rectangle.x=(int)e->x+alloc.x;
-    painter->rectangle.y=(int)e->y+alloc.y;
+    g_list_free_full(painter->points,(GDestroyNotify)destroy_point);
+    painter->points=NULL;
 
-    painter->rectangle.width=1;
-    painter->rectangle.height=1;
+
+//    GtkAllocation alloc;
+//    gtk_widget_get_allocation(widget,&alloc);
+
+        point*newpoint=new_point(e->x,e->y);
+        painter->points=g_list_append(painter->points,newpoint);
+
+    gtk_widget_queue_draw(widget);
 
     return TRUE;
 
@@ -337,16 +358,15 @@ static gboolean sc_painter_motion(GtkWidget*widget, GdkEventMotion*e)
 
     if(painter->pressed){
     
-    
-    painter->rectangle.width=(int)e->x - painter->rectangle.x;
-    painter->rectangle.height=(int)e->y - painter->rectangle.y;
-    
-    
+        point*newpoint=new_point(e->x,e->y);
+        painter->points=g_list_append(painter->points,newpoint);
+        
     gtk_widget_queue_draw(widget);
     
     }
 
 
+    return TRUE;
 
 }
 

@@ -14,6 +14,22 @@
 
 
 
+typedef struct _point{
+int x;
+int y;
+}point;
+
+
+
+point*new_point(int x,int y);
+
+void destroy_point(point*p);
+
+
+
+
+
+
 
 typedef struct _SCPainter{
 
@@ -21,8 +37,7 @@ typedef struct _SCPainter{
 
     GdkWindow* event_window;
 
-    int shape_type;
-    GdkRectangle rectangle;
+    GList*points;
     int line_width;
     GdkRGBA color;
 
