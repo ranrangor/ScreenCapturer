@@ -199,12 +199,12 @@ static void sc_shape_unrealize(GtkWidget*widget)
 
     SCShape*shape=SC_SHAPE(widget);
 
-    GTK_WIDGET_CLASS(sc_shape_parent_class)->unrealize(widget);
 
     gdk_window_destroy(shape->event_window);
     gtk_widget_unregister_window(widget,shape->event_window);
     shape->event_window=NULL;
 
+    GTK_WIDGET_CLASS(sc_shape_parent_class)->unrealize(widget);
 }
 
 
@@ -254,21 +254,29 @@ static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
 
     SCShape*shape=SC_SHAPE(widget);
 
+    int width=gtk_widget_get_allocated_width(widget);
+    int height =gtk_widget_get_allocated_height(widget);
 
-    gdk_cairo_set_source_rgba(cr,&shape->color);
 
 
     cairo_set_line_width(cr,shape->line_width);
     
+    cairo_set_source_rgba(cr,1,0,0,1);
 
     print_rect(&shape->rectangle);
 
 
     cairo_save(cr);
 
+    gtk_cairo_transform_to_window(cr, widget,shape->event_window);
+
+//   cairo_rectangle(cr,0,0,width,height+6);
+//    cairo_fill(cr);
+
     cairo_translate(cr,(double)shape->rectangle.x,(double)shape->rectangle.y);
     cairo_scale(cr,(shape->rectangle.width),(shape->rectangle.height));
 
+    gdk_cairo_set_source_rgba(cr,&shape->color);
 
     if(shape->shape_type==TYPE_RECT){    
   
