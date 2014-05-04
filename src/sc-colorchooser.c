@@ -13,7 +13,8 @@ struct _SCColorChooserPriv{
 
 //    GdkWindow*preview;
     GdkWindow*chooser_window[N_COLOR];
-    GdkRGBA colors[N_COLOR];
+//    GdkRGBA colors[N_COLOR];
+    char*colors[N_COLOR];
 //    GList*chooser_windows;
     int n_colors;    
     int current_color;
@@ -91,9 +92,9 @@ static void sc_color_chooser_class_init(SCColorChooserClass*klass)
 
 
 
-static void init_color(GdkRGBA*cc)
+static void init_color(SCColorChooser*cc)
 {
-
+/*
     cc[0].red=1.0;
     cc[0].green=1.0;
     cc[0].blue=1.0;
@@ -153,7 +154,33 @@ static void init_color(GdkRGBA*cc)
     cc[11].green=0;
     cc[11].blue=0.5;
     cc[11].alpha=1.0;
+*/
 
+
+    SCColorChooserPriv* priv=cc->priv;
+
+    char* table[]={
+    
+    "#000000",
+    "#ffffff",
+    "#ff0000",
+    "#7f0000",
+    "#00ff00",
+    "#007f00",
+    "#0000ff",
+    "#00007f",
+    "#ffff00",
+    "#00ffff",
+    "#ff00ff",
+    "#7f7f7f",NULL
+    
+    };
+
+    int i;
+    for(i=0;i<N_COLOR;i++){
+        priv->colors[i]=g_strdup(table[i]);
+    
+    }
 
 
 }
@@ -175,8 +202,8 @@ static void sc_color_chooser_init(SCColorChooser*obj)
 
     priv->choosed_color=2;//red
 
-    init_color((GdkRGBA*)&priv->colors);
-
+//    init_color((GdkRGBA*)&priv->colors);
+    init_color(obj);
 
 
     gtk_widget_set_has_window(widget,FALSE);
@@ -400,6 +427,8 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
 
+    GdkRGBA c;
+//    c.alpha=1;
     GtkAllocation alloc;
     gtk_widget_get_allocation(widget,&alloc);
 
@@ -415,8 +444,11 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
 
     render_border(cr,0,0,side,side);
+    
 
-    gdk_cairo_set_source_rgba(cr,&priv->colors[i]);
+    gdk_rgba_parse(&c,priv->colors[i]);
+
+    gdk_cairo_set_source_rgba(cr,&c);
 
     if(i==priv->current_color){
         cairo_rectangle(cr,0.5,0.5,side,side);
@@ -436,7 +468,8 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
     int prev_x=alloc.x+priv->border;
     int prev_y=alloc.y+priv->border;
 
-    gdk_cairo_set_source_rgba(cr,&priv->colors[priv->choosed_color]);
+    gdk_rgba_parse(&c,priv->colors[priv->choosed_color]);
+    gdk_cairo_set_source_rgba(cr,&c);
 
     render_border(cr,prev_x,prev_y,prev_side,prev_side);
     cairo_rectangle(cr,prev_x,prev_y,prev_side,prev_side);
@@ -507,6 +540,23 @@ static gboolean sc_color_chooser_press(GtkWidget*widget,GdkEventButton*e)
 
 
 
+
+GtkWidget* sc_color_chooser_new()
+{
+    return (GtkWidget*)g_object_new(SC_TYPE_COLOR_CHOOSER,NULL);
+
+}
+
+
+
+char* sc_color_chooser_get_color(SCColorChooser*cc)
+{
+
+    SCColorChooserPriv*priv=cc->priv;
+
+    return priv->colors[priv->choosed_color];
+
+}
 
 
 

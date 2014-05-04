@@ -49,6 +49,9 @@ GtkWidgetClass parent_class;
 GType sc_color_chooser_get_type(void);
 
 
+GtkWidget*sc_color_chooser_new(void);
+
+char* sc_color_chooser_get_color(SCColorChooser*);
 
 
 
