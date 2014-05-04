@@ -5,6 +5,7 @@
 
 
 #include<gtk/gtk.h>
+//#include"sc-canvas.h"
 
 #define SC_TYPE_OPERABLE (sc_operable_get_type())
 #define SC_OPERABLE(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj),SC_TYPE_OPERABLE,SCOperable))
@@ -25,9 +26,17 @@ typedef struct _scOperableIface{
 
     GTypeInterface parent_iface;
 
+    /* member */
+//    SCCanvas* canvas;
+    GtkWidget* toolbutton;
+    GtkWidget* toolmenu;
+
+    /* virtual functions */
     void (*ready)(SCOperable* operable);
     void (*done) (SCOperable* operable);
-    void (*obtain_menu) (SCOperable* operable);
+    void (*reset) (SCOperable* operable);
+    GtkWidget* (*obtain_menu) (SCOperable* operable);
+    GtkWidget* (*get_toolbutton) (SCOperable* operable);
 
 
 }SCOperableInterface;
@@ -38,7 +47,7 @@ typedef struct _scOperableIface{
 
 
 
-static GType sc_operable_get_type(void);
+GType sc_operable_get_type(void);
 
 
 
@@ -50,7 +59,9 @@ static GType sc_operable_get_type(void);
 
 void sc_operable_ready(SCOperable* operable);
 void sc_operable_done(SCOperable* operable);
-void sc_operable_obtain_menu(SCOperable* operable);
+void sc_operable_reset(SCOperable* operable);
+GtkWidget* sc_operable_obtain_menu(SCOperable* operable);
+GtkWidget* sc_operable_get_toolbutton(SCOperable* operable);
 
 
 #endif
