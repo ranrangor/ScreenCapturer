@@ -1,4 +1,4 @@
-#include"sc-shape.h"
+#include"sc-arrow.h"
 #include"sc-operable.h"
 #include<math.h>
 #include<gtk/gtk.h>
@@ -6,18 +6,12 @@
 
 
 
-enum{
-    NO_TYPE,
-    TYPE_RECT,
-    TYPE_CIRCLE,
-    N_TYPES
-};
 
 
 
 static void sc_operable_interface_init(SCOperableInterface* iface);
 
-G_DEFINE_TYPE_WITH_CODE(SCShape,sc_shape,GTK_TYPE_WIDGET,
+G_DEFINE_TYPE_WITH_CODE(SCArrow,sc_arrow,GTK_TYPE_WIDGET,
         G_IMPLEMENT_INTERFACE(SC_TYPE_OPERABLE,sc_operable_interface_init))
 
 
@@ -25,16 +19,16 @@ G_DEFINE_TYPE_WITH_CODE(SCShape,sc_shape,GTK_TYPE_WIDGET,
 
 
 
-static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr);
-static gboolean sc_shape_press(GtkWidget*widget, GdkEventButton*e);
-static gboolean sc_shape_release(GtkWidget*widget, GdkEventButton*e);
-static gboolean sc_shape_motion(GtkWidget*widget, GdkEventMotion*e);
+static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr);
+static gboolean sc_arrow_press(GtkWidget*widget, GdkEventButton*e);
+static gboolean sc_arrow_release(GtkWidget*widget, GdkEventButton*e);
+static gboolean sc_arrow_motion(GtkWidget*widget, GdkEventMotion*e);
 
-static void sc_shape_realize(GtkWidget*widget);
-static void sc_shape_unrealize(GtkWidget*widget);
-static void sc_shape_map(GtkWidget*widget);
-static void sc_shape_unmap(GtkWidget*widget);
-static void sc_shape_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
+static void sc_arrow_realize(GtkWidget*widget);
+static void sc_arrow_unrealize(GtkWidget*widget);
+static void sc_arrow_map(GtkWidget*widget);
+static void sc_arrow_unmap(GtkWidget*widget);
+static void sc_arrow_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
 
 
 
@@ -44,16 +38,16 @@ static void sc_shape_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
 static void but2_clicked(GtkWidget*widget,SCOperable*operable)
 {
 
-    SCShape*shape=SC_SHAPE(operable);
-    shape->line_width=2;
+    SCArrow*arrow=SC_ARROW(operable);
+    arrow->line_width=2;
 }
 
 
 static void but5_clicked(GtkWidget*widget,SCOperable*operable)
 {
 
-    SCShape*shape=SC_SHAPE(operable);
-    shape->line_width=5;
+    SCArrow*arrow=SC_ARROW(operable);
+    arrow->line_width=5;
 
 }
 
@@ -61,7 +55,7 @@ static void but5_clicked(GtkWidget*widget,SCOperable*operable)
 
 
 
-GtkWidget*shape_obtain_menu(SCOperable*operable)
+GtkWidget*arrow_obtain_menu(SCOperable*operable)
 {
 
     GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
@@ -88,50 +82,48 @@ GtkWidget*shape_obtain_menu(SCOperable*operable)
 static void sc_operable_interface_init(SCOperableInterface* iface)
 {
 
-    iface->toolbutton=gtk_button_new_with_label("shape");
+    iface->toolbutton=gtk_button_new_with_label("arrow");
 //    iface->
-//    iface->toolmenu=create_shape_tool_menu();
+//    iface->toolmenu=create_arrow_tool_menu();
 
-    iface->obtain_menu=shape_obtain_menu;
+    iface->obtain_menu=arrow_obtain_menu;
 
 }
 
 
 
 
-static void sc_shape_class_init(SCShapeClass*klass)
+static void sc_arrow_class_init(SCArrowClass*klass)
 {
 
 
     GtkWidgetClass*wclass=GTK_WIDGET_CLASS(klass);
 
-    wclass->draw=sc_shape_draw;
+    wclass->draw=sc_arrow_draw;
 
-    wclass->button_press_event=sc_shape_press;
-    wclass->button_release_event=sc_shape_release;
+    wclass->button_press_event=sc_arrow_press;
+    wclass->button_release_event=sc_arrow_release;
 
-    wclass->realize=sc_shape_realize;
-    wclass->unrealize=sc_shape_unrealize;
-    wclass->map=sc_shape_map;
-    wclass->unmap=sc_shape_unmap;
+    wclass->realize=sc_arrow_realize;
+    wclass->unrealize=sc_arrow_unrealize;
+    wclass->map=sc_arrow_map;
+    wclass->unmap=sc_arrow_unmap;
 
-    wclass->size_allocate=sc_shape_size_allocate;
+    wclass->size_allocate=sc_arrow_size_allocate;
 
-    wclass->motion_notify_event=sc_shape_motion;
+    wclass->motion_notify_event=sc_arrow_motion;
 
 
 }
 
 
 
-static void sc_shape_init(SCShape*obj)
+static void sc_arrow_init(SCArrow*obj)
 {
 
 
     GtkWidget* wobj=GTK_WIDGET(obj);
 
-    //obj->shape_type=TYPE_RECT;
-    obj->shape_type=TYPE_CIRCLE;
    
     gtk_widget_set_has_window(wobj,FALSE);
 
@@ -144,10 +136,10 @@ static void sc_shape_init(SCShape*obj)
 
 
 
-static void sc_shape_realize(GtkWidget*widget)
+static void sc_arrow_realize(GtkWidget*widget)
 {
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
     GdkWindow*event_window;
     GdkWindow*parent_window;
@@ -162,7 +154,7 @@ static void sc_shape_realize(GtkWidget*widget)
 
     parent_window=gtk_widget_get_parent_window(widget);
 
-    GTK_WIDGET_CLASS(sc_shape_parent_class)->realize(widget);
+    GTK_WIDGET_CLASS(sc_arrow_parent_class)->realize(widget);
 
 
 
@@ -188,52 +180,52 @@ static void sc_shape_realize(GtkWidget*widget)
 
     gtk_widget_register_window(widget,event_window);
 
-    shape->event_window=event_window;
+    arrow->event_window=event_window;
 
 
 }
 
 
-static void sc_shape_unrealize(GtkWidget*widget)
+static void sc_arrow_unrealize(GtkWidget*widget)
 {
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
 
-    gdk_window_destroy(shape->event_window);
-    gtk_widget_unregister_window(widget,shape->event_window);
-    shape->event_window=NULL;
+    gdk_window_destroy(arrow->event_window);
+    gtk_widget_unregister_window(widget,arrow->event_window);
+    arrow->event_window=NULL;
 
-    GTK_WIDGET_CLASS(sc_shape_parent_class)->unrealize(widget);
+    GTK_WIDGET_CLASS(sc_arrow_parent_class)->unrealize(widget);
 }
 
 
 
-static void sc_shape_map(GtkWidget*widget)
+static void sc_arrow_map(GtkWidget*widget)
 {
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
-    GTK_WIDGET_CLASS(sc_shape_parent_class)->map(widget);
+    GTK_WIDGET_CLASS(sc_arrow_parent_class)->map(widget);
 
 
-    if(shape->event_window)
-        gdk_window_show(shape->event_window);
+    if(arrow->event_window)
+        gdk_window_show(arrow->event_window);
 
 
 }
 
 
 
-static void sc_shape_unmap(GtkWidget*widget)
+static void sc_arrow_unmap(GtkWidget*widget)
 {
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
-    GTK_WIDGET_CLASS(sc_shape_parent_class)->unmap(widget);
+    GTK_WIDGET_CLASS(sc_arrow_parent_class)->unmap(widget);
 
-    if(shape->event_window)
-        gdk_window_hide(shape->event_window);
+    if(arrow->event_window)
+        gdk_window_hide(arrow->event_window);
 
 
 }
@@ -249,73 +241,93 @@ void print_rect(GdkRectangle*r)
 }
 
 
-static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
+static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr)
 {
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
     int width=gtk_widget_get_allocated_width(widget);
     int height =gtk_widget_get_allocated_height(widget);
 
+    double arrow_width=1.5*arrow->line_width;
+    double arrow_length=2*arrow_width;
 
 
-    cairo_set_line_width(cr,shape->line_width);
+    double dashs[]={arrow_length,arrow_length,100000};
+
+
+
+    cairo_set_line_width(cr,arrow->line_width);
     
     cairo_set_source_rgba(cr,1,0,0,1);
 
-    print_rect(&shape->rectangle);
+//    print_rect(&arrow->rectangle);
+
+////
+//
+//    cairo_rectangle(cr,arrow->x0,arrow->y0,arrow->x1-arrow->x0,arrow->y1-arrow->y0);
+//
+//    cairo_stroke(cr);
+//
+    cairo_move_to(cr,arrow->x1,arrow->y1);
+    cairo_line_to(cr,arrow->x0,arrow->y0);
+//
+    cairo_set_dash(cr,dashs,3,arrow_length);
+    cairo_stroke(cr);
+//
 
 
-    cairo_save(cr);
+    double rad=0.0;
+    int dx,dy;
+    dx=arrow->x1-arrow->x0;
+    dy=arrow->y1-arrow->y0;
 
-    gtk_cairo_transform_to_window(cr, widget,shape->event_window);
+    if(dx>0){
+   
+        rad= atan(((double)dy)/dx);
 
-//   cairo_rectangle(cr,0,0,width,height+6);
-//    cairo_fill(cr);
+    }else{//dx<=0 
+   
+        rad=atan(((double)dy)/dx)+M_PI;
 
-    cairo_translate(cr,(double)shape->rectangle.x,(double)shape->rectangle.y);
-    cairo_scale(cr,(shape->rectangle.width),(shape->rectangle.height));
-
-    gdk_cairo_set_source_rgba(cr,&shape->color);
-
-    if(shape->shape_type==TYPE_RECT){    
-  
-//    cairo_set_line_width(cr,0.01);
-    cairo_rectangle(cr,0,0,1,1);
-
-    }else if(shape->shape_type==TYPE_CIRCLE){
-    
-    cairo_arc(cr,0.5,0.5,0.5,0,2*M_PI);
-    
     }
 
-    cairo_restore(cr);
-    cairo_stroke(cr);
+    cairo_save(cr);
+    cairo_translate(cr,arrow->x1,arrow->y1);
 
+    cairo_rotate(cr,rad);
+
+    cairo_move_to(cr,0,0);
+    cairo_rel_line_to(cr,-arrow_length,-arrow_width);
+    cairo_rel_line_to(cr,0,arrow_width*2);
+    cairo_rel_line_to(cr,0,0);
+    cairo_fill(cr);
+
+    cairo_restore(cr);
 
     return FALSE;
-
 
 }
 
 
 
-static gboolean sc_shape_press(GtkWidget*widget, GdkEventButton*e)
+static gboolean sc_arrow_press(GtkWidget*widget, GdkEventButton*e)
 {
 
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
-    shape->pressed=TRUE;
+    arrow->pressed=TRUE;
     GtkAllocation alloc;
 
     gtk_widget_get_allocation(widget,&alloc);
 
-    shape->rectangle.x=(int)e->x+alloc.x;
-    shape->rectangle.y=(int)e->y+alloc.y;
+    arrow->x0=(int)e->x;
+    arrow->y0=(int)e->y;
 
-    shape->rectangle.width=1;
-    shape->rectangle.height=1;
+    arrow->x1=arrow->x0;
+    arrow->y1=arrow->y0;
+
 
     return TRUE;
 
@@ -324,12 +336,12 @@ static gboolean sc_shape_press(GtkWidget*widget, GdkEventButton*e)
 
 
 
-static gboolean sc_shape_release(GtkWidget*widget, GdkEventButton*e)
+static gboolean sc_arrow_release(GtkWidget*widget, GdkEventButton*e)
 {
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
-    shape->pressed=FALSE;
+    arrow->pressed=FALSE;
 
     return TRUE;
 
@@ -338,17 +350,15 @@ static gboolean sc_shape_release(GtkWidget*widget, GdkEventButton*e)
 
 
 
-static gboolean sc_shape_motion(GtkWidget*widget, GdkEventMotion*e)
+static gboolean sc_arrow_motion(GtkWidget*widget, GdkEventMotion*e)
 {
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
-    if(shape->pressed){
+    if(arrow->pressed){
     
-    
-    shape->rectangle.width=(int)e->x - shape->rectangle.x;
-    shape->rectangle.height=(int)e->y - shape->rectangle.y;
-    
+    arrow->x1=(int)e->x;
+    arrow->y1=(int)e->y;
     
     gtk_widget_queue_draw(widget);
     
@@ -363,11 +373,11 @@ static gboolean sc_shape_motion(GtkWidget*widget, GdkEventMotion*e)
 
 
 
-static void sc_shape_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
+static void sc_arrow_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
 {
 
 
-    SCShape*shape=SC_SHAPE(widget);
+    SCArrow*arrow=SC_ARROW(widget);
 
 
     gtk_widget_set_allocation(widget,allocation);
@@ -375,7 +385,7 @@ static void sc_shape_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
 
     if(gtk_widget_get_realized(widget)){
     
-        gdk_window_move_resize(shape->event_window,allocation->x,allocation->y,
+        gdk_window_move_resize(arrow->event_window,allocation->x,allocation->y,
                 allocation->width,allocation->height);
 
     }

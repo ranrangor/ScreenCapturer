@@ -1,46 +1,48 @@
-#ifndef _SC_H_SHAPE_
+#ifndef _SC_H_ARROW_
 
-#define _SC_H_SHAPE_
+#define _SC_H_ARROW_
 
 
 
 #include<gtk/gtk.h>
 
 
-#define SC_TYPE_SHAPE (sc_shape_get_type())
-#define SC_SHAPE(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj),SC_TYPE_SHAPE,SCShape))
-#define SC_IS_SHAPE(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj),SC_TYPE_SHAPE))
+#define SC_TYPE_ARROW (sc_arrow_get_type())
+#define SC_ARROW(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj),SC_TYPE_ARROW,SCArrow))
+#define SC_IS_ARROW(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj),SC_TYPE_ARROW))
 
 
 
 
 
-typedef struct _SCShape{
+typedef struct _SCArrow{
 
     GtkWidget parent;
 
     GdkWindow* event_window;
 
-    int shape_type;
+    int arrow_type;
     GdkRectangle rectangle;
-    int line_width;
+    int x0,y0;
+    int x1,y1;
+
     GdkRGBA color;
+    gint line_width;
 
     gboolean pressed;
 
 
-
-}SCShape;
-
+}SCArrow;
 
 
-typedef struct _SCShapeClass{
+
+typedef struct _SCArrowClass{
 
     GtkWidgetClass parent_class;
 
 
 
-}SCShapeClass;
+}SCArrowClass;
 
 
 
@@ -48,7 +50,7 @@ typedef struct _SCShapeClass{
 
 
 
-GType sc_shape_get_type(void);
+GType sc_arrow_get_type(void);
 
 
 
