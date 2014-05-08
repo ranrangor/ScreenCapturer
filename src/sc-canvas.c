@@ -948,8 +948,10 @@ void sc_canvas_step_done(SCCanvas* canvas)
     GdkPixbuf*pf=gdk_pixbuf_get_from_window(priv->window,0,0,
             priv->position.width, priv->position.height);
 
-
-    sc_canvas_set_pixbuf(canvas,pf);
+    if(pf){
+        sc_canvas_set_pixbuf(canvas,pf);
+        g_object_unref(pf);
+    }
 
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
@@ -982,7 +984,8 @@ void sc_canvas_done(SCCanvas* canvas)
 {
 
     SCCanvasPriv*priv=canvas->priv;
-
+//TODO 
+//save to clipborder
 
 
 }
