@@ -6,9 +6,8 @@
 
 
 
-
 static SCCanvas* ref_canvas;
-
+#define BUF_SIZE 100
 
 
 
@@ -32,6 +31,7 @@ enum{
 struct _SCCanvasPriv{
 
     GList* pixbufs;
+    GtkWidget*appwin;
 //    gint current_pixbuf;
 //    GtkAllocation position;
     GdkRectangle position;
@@ -46,11 +46,10 @@ struct _SCCanvasPriv{
     GdkWindow*toolmenuwindow;
 
     GtkWidget*operable_box;
-    gboolean show_menu;
+//    gboolean show_menu;
 
-
-    SCOperable* registered_operables[N_OPERABLES];
-    GtkWidget* act_buttons[N_OPERABLES];
+//    SCOperable* registered_operables[N_OPERABLES];
+//    GtkWidget* act_buttons[N_OPERABLES];
 
 };
 
@@ -663,13 +662,29 @@ GtkWidget*sc_canvas_new(int x,int y,int width, int height)
 
 static void undo_cb(GtkWidget*widget,gpointer d)
 {
-
     SCCanvas* canvas=SC_CANVAS(d);
-
     sc_canvas_undo(canvas);
 
+}
+
+static void save_cb(GtkWidget*widget,gpointer d)
+{
+    SCCanvas* canvas=SC_CANVAS(d);
+    sc_canvas_save(canvas);
+    sc_canvas_exit(canvas);
 
 }
+
+
+static void exit_cb(GtkWidget*widget,gpointer d)
+{
+    SCCanvas* canvas=SC_CANVAS(d);
+    sc_canvas_exit(canvas);
+
+}
+
+
+
 
 GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op)
 //GtkWidget*sc_canvas_add_menu(SCCanvas*canvas)
@@ -694,6 +709,8 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
     GtkWidget*item_exit= gtk_button_new_with_label("Exit");
 
     g_signal_connect(G_OBJECT(item_undo),"clicked",G_CALLBACK(undo_cb),canvas);
+    g_signal_connect(G_OBJECT(item_save),"clicked",G_CALLBACK(save_cb),canvas);
+    g_signal_connect(G_OBJECT(item_exit),"clicked",G_CALLBACK(exit_cb),canvas);
 
 //    gtk_box_pack_start(GTK_BOX(priv->menu),priv->operable_box,TRUE,TRUE,0);
 
@@ -872,6 +889,15 @@ g_object_set(G_OBJECT(canvas),"x",x,"y",y,"width",width,"height",height,NULL);
 
 }
 
+void sc_canvas_set_appwin(SCCanvas*canvas,GtkWidget*appwin)
+{
+    g_assert(GTK_IS_APPLICATION_WINDOW(appwin));
+
+    SCCanvasPriv*priv=canvas->priv;
+
+    priv->appwin=appwin;
+
+}
 
 void sc_canvas_get(SCCanvas*canvas,int* x, int* y, int* width, int* height)
 {
@@ -949,6 +975,76 @@ void sc_canvas_undo(SCCanvas* canvas)
 
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
+
+}
+
+void sc_canvas_done(SCCanvas* canvas)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+
+
+
+}
+
+void sc_canvas_save(SCCanvas* canvas)
+{
+    SCCanvasPriv*priv=canvas->priv;
+
+    extern time_t Timeval;
+    struct tm* tmm=localtime(&Timeval);
+    char timespec[BUF_SIZE];
+
+    strftime(timespec,BUF_SIZE,"%H%M%S",tmm);
+    
+
+
+    GtkWidget*dialog=gtk_file_chooser_dialog_new("Save Picture",GTK_WINDOW(priv->appwin),GTK_FILE_CHOOSER_ACTION_SAVE,
+            "_Save",GTK_RESPONSE_ACCEPT,"_Cancel",GTK_RESPONSE_CANCEL,NULL);
+
+gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog),TRUE);
+
+char*filename=g_strdup_printf("screencaputer-%s.png",timespec);
+
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog),filename);
+
+    g_free(filename);
+
+    char*savfilename;
+
+    int res=gtk_dialog_run(GTK_DIALOG(dialog));
+
+    if(res==GTK_RESPONSE_ACCEPT){
+    
+        savfilename=gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+        g_message("Filename::%s",filename);
+
+    }else if(res==GTK_RESPONSE_CANCEL){
+    
+    
+    }
+
+    gtk_widget_destroy(dialog);
+
+
+    GdkPixbuf*savepf=sc_canvas_get_pixbuf(canvas);
+
+    gdk_pixbuf_save(savepf,savfilename,"png",NULL,NULL);
+
+    g_free(savfilename);
+    g_object_unref(savepf);
+
+
+
+}
+
+void sc_canvas_exit(SCCanvas* canvas)
+{
+    SCCanvasPriv*priv=canvas->priv;
+
+    GtkApplication*app=gtk_window_get_application(GTK_WINDOW(priv->appwin));
+    g_application_quit(G_APPLICATION(app));
 
 }
 

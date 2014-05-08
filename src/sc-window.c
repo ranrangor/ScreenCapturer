@@ -4,7 +4,7 @@
 #include"sc-canvas.h"
 #include"sc-operators.h"
 #include<gdk-pixbuf/gdk-pixbuf.h>
-
+#include<time.h>
 
 #define VIEW_Width 120
 #define VIEW_Height 80
@@ -15,6 +15,7 @@
 
 
 
+time_t Timeval;
 
 
 struct _SCWindowPriv{
@@ -26,14 +27,15 @@ struct _SCWindowPriv{
     //list of windows
     GList*rects;
     //number of windows;
-    int n_rects;
-    int px,py;
     GdkRectangle current_rect;
     GdkRectangle saved_rect;
+//    time_t timeval;
+    int n_rects;
+    int px,py;
     gint rect_selected:1;
     gint button_down:1;
     gint moved :1;
-
+    
 
 };
 
@@ -308,7 +310,7 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
 //    sc_canvas_add_op(canvas,sc_shape_new(canvas));
 //    sc_canvas_add_me(priv->canvas,sc_canvas_get_menu(canvas));
 
-sc_canvas_register_operables(priv->canvas);
+sc_canvas_register_operables(priv->canvas,(widget));
 
 
     gtk_container_add(GTK_CONTAINER(widget),priv->canvas);
@@ -533,9 +535,12 @@ void sc_window_setup(SCWindow*scwin)
 
 SCWindow* sc_window_new( SCApp*app)
 {
-    return g_object_new(SC_TYPE_WINDOW,"application",app,NULL);
+    SCWindow*win=g_object_new(SC_TYPE_WINDOW,"application",app,NULL);
+    
+    //global variable
+    Timeval=time(NULL);
 
-
+    return win;
 }
 
 
