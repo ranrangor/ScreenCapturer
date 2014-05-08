@@ -2,7 +2,8 @@
 #define _H_SC_CANVAS_
 
 
-
+#include<gtk/gtk.h>
+//#include"sc-operable.h"
 
 
 
@@ -18,6 +19,16 @@
 
 #define SC_CANVAS_GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj),SC_TYPE_CANVAS,SCCanvasPriv))
 
+enum{
+OP_0,
+OP_RECT,
+OP_PAINT,
+OP_ARROW,
+
+
+N_OPERABLES
+};
+
 
 
 typedef struct _SCCanvasPriv SCCanvasPriv;
@@ -25,7 +36,7 @@ typedef struct _SCCanvasPriv SCCanvasPriv;
 
 typedef struct _SCCanvas{
 
-    GtkBin parent;
+    GtkBox parent;
 
     SCCanvasPriv*priv;
 
@@ -35,9 +46,9 @@ typedef struct _SCCanvas{
 
 
 typedef struct _SCCanvasClass{
-    GtkBinClass parent_class;
+    GtkBoxClass parent_class;
 
-    void (*set_background)(SCCanvas*canvas);
+//    void (*set_background)(SCCanvas*canvas);
 
 
 }SCCanvasClass;
@@ -56,9 +67,20 @@ void sc_canvas_set(SCCanvas*canvas,int x, int y, int width, int height);
 void sc_canvas_get(SCCanvas*canvas,int* x, int* y, int* width, int* height);
 //void sc_canvas_s(SCCanvas*canvas,int x, int y, int width, int height);
 
-void sc_canvas_add_menu(SCCanvas*canvas);//,GtkWidget*menu)//SCOperator* op)
+GtkWidget* sc_canvas_get_menu(SCCanvas*canvas);//,GtkWidget*menu)//SCOperator* op)
+void sc_canvas_show_menu(SCCanvas* canvas);
+//void sc_canvas_hide_menu(SCCanvas* canvas);
 
+GtkWidget* sc_canvas_add_operater(SCCanvas*canvas, GtkWidget*operable, int pos);
 
+//void sc_canvas_take_shot(SCCanvas*canvas);
+void sc_canvas_step_done(SCCanvas* canvas);
+void sc_canvas_undo(SCCanvas* canvas);
 
+void sc_canvas_register_operables(SCCanvas*canvas);
+void sc_canvas_reset(SCCanvas*canvas,GtkWidget*w);
+
+void sc_canvas_add_me(SCCanvas*canvas,GtkWidget* me);
+void sc_canvas_add_op(SCCanvas*canvas,GtkWidget* op);
 
 #endif

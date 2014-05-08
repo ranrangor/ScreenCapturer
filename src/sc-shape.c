@@ -1,4 +1,5 @@
 #include"sc-shape.h"
+#include"sc-canvas.h"
 #include"sc-operable.h"
 #include<math.h>
 #include<gtk/gtk.h>
@@ -238,7 +239,7 @@ static void sc_shape_unmap(GtkWidget*widget)
 
 }
 
-
+/*
 void print_rect(GdkRectangle*r)
 {
 
@@ -247,11 +248,12 @@ void print_rect(GdkRectangle*r)
 
 
 }
-
+*/
 
 static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
 {
 
+//    cairo_set_operator(cr,CAIRO_OPERATOR_OVER);
     SCShape*shape=SC_SHAPE(widget);
 
     int width=gtk_widget_get_allocated_width(widget);
@@ -263,7 +265,7 @@ static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
     
     cairo_set_source_rgba(cr,1,0,0,1);
 
-    print_rect(&shape->rectangle);
+//    print_rect(&shape->rectangle);
 
 
     cairo_save(cr);
@@ -331,6 +333,11 @@ static gboolean sc_shape_release(GtkWidget*widget, GdkEventButton*e)
 
     shape->pressed=FALSE;
 
+    SCCanvas* canvas=sc_operable_get_canvas(widget);
+
+    sc_canvas_step_done(canvas);
+    sc_shape_reset(shape);
+
     return TRUE;
 
 
@@ -353,8 +360,8 @@ static gboolean sc_shape_motion(GtkWidget*widget, GdkEventMotion*e)
     gtk_widget_queue_draw(widget);
     
     }
-
-
+    
+    return TRUE;
 
 }
 
@@ -381,6 +388,28 @@ static void sc_shape_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
     }
 
 
+}
+
+void sc_shape_reset(SCShape*shape)
+{
+
+    shape->rectangle.x=0;
+    shape->rectangle.y=0;
+    shape->rectangle.width=0;
+    shape->rectangle.height=0;
+
+
+
+}
+
+
+
+SCOperable* sc_shape_new(SCCanvas*canvas)
+{
+    SCOperable*operable=(SCOperable*)g_object_new(SC_TYPE_SHAPE,NULL);
+//    operable->canvas=canvas;
+    sc_operable_set_canvas(operable,canvas);
+    return operable;
 }
 
 

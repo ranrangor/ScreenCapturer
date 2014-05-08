@@ -2,8 +2,8 @@
 
 #define _SC_H_SHAPE_
 
-
-
+#include"sc-canvas.h"
+#include"sc-operable.h"
 #include<gtk/gtk.h>
 
 
@@ -18,6 +18,7 @@
 typedef struct _SCShape{
 
     GtkWidget parent;
+    SCCanvas* canvas;
 
     GdkWindow* event_window;
 
@@ -51,7 +52,9 @@ typedef struct _SCShapeClass{
 GType sc_shape_get_type(void);
 
 
+SCOperable* sc_shape_new();
 
+void sc_shape_reset(SCShape*shape);
 
 
 #endif

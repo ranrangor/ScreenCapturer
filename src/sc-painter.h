@@ -4,6 +4,8 @@
 
 
 
+#include"sc-canvas.h"
+#include"sc-operable.h"
 #include<gtk/gtk.h>
 
 
@@ -34,6 +36,7 @@ void destroy_point(point*p);
 typedef struct _SCPainter{
 
     GtkWidget parent;
+    SCCanvas* canvas;
 
     GdkWindow* event_window;
 
@@ -65,6 +68,7 @@ typedef struct _SCPainterClass{
 
 GType sc_painter_get_type(void);
 
+SCOperable* sc_painter_new(SCCanvas*canvas);
 
 
 

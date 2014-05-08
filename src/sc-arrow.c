@@ -230,7 +230,7 @@ static void sc_arrow_unmap(GtkWidget*widget)
 
 }
 
-
+/*
 void print_rect(GdkRectangle*r)
 {
 
@@ -239,7 +239,7 @@ void print_rect(GdkRectangle*r)
 
 
 }
-
+*/
 
 static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr)
 {
@@ -392,5 +392,17 @@ static void sc_arrow_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
 
 
 }
+
+
+
+
+
+SCOperable* sc_arrow_new()
+{
+    return (SCOperable*) g_object_new(SC_TYPE_ARROW,NULL);
+
+}
+
+
 
 

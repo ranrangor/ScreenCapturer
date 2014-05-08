@@ -1,4 +1,5 @@
 #include"sc-painter.h"
+#include"sc-canvas.h"
 #include"sc-operable.h"
 #include<math.h>
 #include<gtk/gtk.h>
@@ -257,6 +258,14 @@ static void sc_painter_unmap(GtkWidget*widget)
 
 }
 
+void sc_painter_reset(SCPainter*painter)
+{
+
+    g_list_free_full(painter->points,(GDestroyNotify)destroy_point);
+    painter->points=NULL;
+
+
+}
 
 void print_rect(GdkRectangle*r)
 {
@@ -317,10 +326,10 @@ static gboolean sc_painter_press(GtkWidget*widget, GdkEventButton*e)
 
     painter->pressed=TRUE;
 
-
+/*
     g_list_free_full(painter->points,(GDestroyNotify)destroy_point);
     painter->points=NULL;
-
+*/
 
 //    GtkAllocation alloc;
 //    gtk_widget_get_allocation(widget,&alloc);
@@ -343,6 +352,15 @@ static gboolean sc_painter_release(GtkWidget*widget, GdkEventButton*e)
     SCPainter*painter=SC_PAINTER(widget);
 
     painter->pressed=FALSE;
+
+
+    SCCanvas* canvas=sc_operable_get_canvas(widget);
+
+    sc_canvas_step_done(canvas);
+    sc_painter_reset(painter);
+
+
+
 
     return TRUE;
 
@@ -394,5 +412,17 @@ static void sc_painter_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
 
 
 }
+
+
+
+SCOperable* sc_painter_new(SCCanvas*canvas)
+{
+    SCOperable*operable=(SCOperable*)g_object_new(SC_TYPE_PAINTER,NULL);
+//    operable->canvas=canvas;
+    sc_operable_set_canvas(operable,canvas);
+    return operable;
+}
+
+
 
 

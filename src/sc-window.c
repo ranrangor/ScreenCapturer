@@ -20,7 +20,7 @@ struct _SCWindowPriv{
 
     GdkPixbuf*fullpf;
     GtkWidget*canvas;
-    GtkWidget*fixed;
+//    GtkWidget*fixed;
     GdkWindow*root_win;
     //list of windows
     GList*rects;
@@ -224,7 +224,7 @@ static void get_all_rects(SCWindow* scwin)
 
 static gboolean sc_window_motion(GtkWidget*widget,GdkEventMotion*e)
 {
-    g_message("Motion.....");
+//    g_message("Motion.....");
 
     SCWindow *scwin=SC_WINDOW(widget);
     SCWindowPriv*priv=scwin->priv;
@@ -265,6 +265,9 @@ static gboolean sc_window_button_press(GtkWidget*widget,GdkEventButton*e)
 
 
     if(e->type==GDK_BUTTON_PRESS && e->button==GDK_BUTTON_PRIMARY){
+
+        if(priv->rect_selected)
+            return TRUE;
     
         priv->button_down=TRUE;
         priv->saved_rect.x=(int)e->x;
@@ -284,32 +287,35 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
     SCWindowPriv*priv=SC_WINDOW(widget)->priv;
 
 
-    if(e->type==GDK_BUTTON_RELEASE && e->button==GDK_BUTTON_PRIMARY){
+    if(e->type==GDK_BUTTON_RELEASE && e->button==GDK_BUTTON_PRIMARY ){
         
+        if(priv->rect_selected)
+            return TRUE;
+
         priv->button_down=FALSE;
         priv->rect_selected=TRUE;
-// PPPPPPPPPPPPPP
-// pppppppppppppp
 //
+//    if(priv->canvas==NULL){
+
         priv->canvas=sc_canvas_new(priv->current_rect.x,
                 priv->current_rect.y,
                 priv->current_rect.width,
                 priv->current_rect.height);
        
-        gtk_widget_show(priv->canvas);
 
-        gtk_container_add(GTK_CONTAINER(widget),GTK_WIDGET(priv->canvas));
-        GtkWidget*button=gtk_button_new_with_label("BUTTON");
-        gtk_widget_show(button);
 
-    g_message("before fixed add to scwin");
+//    sc_canvas_add_op(canvas,sc_shape_new(canvas));
+//    sc_canvas_add_me(priv->canvas,sc_canvas_get_menu(canvas));
 
-        gtk_container_add(GTK_CONTAINER(priv->canvas),button);
+sc_canvas_register_operables(priv->canvas);
 
-        sc_canvas_add_menu(SC_CANVAS(priv->canvas));
 
-        g_message("Button Added!!!!!!!!!!!!!!!");
-        gtk_widget_queue_resize(widget);
+    gtk_container_add(GTK_CONTAINER(widget),priv->canvas);
+
+        gtk_widget_show_all(priv->canvas);
+
+//        sc_canvas_show_menu(priv->canvas);
+
     }
 
     if(e->type==GDK_BUTTON_RELEASE && e->button==GDK_BUTTON_SECONDARY){
@@ -318,11 +324,12 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
             priv->rect_selected=FALSE;
 
 //PPPPPPPPPPPPPPPPPPPPPP
-////PPPPPPPPPPPPPPPPPPp            
+////PPPPPPPPPPPPPPPPPP            
             gtk_container_remove(GTK_CONTAINER(widget),priv->canvas);
-            sc_canvas_destroy(SC_CANVAS(priv->canvas));
-            priv->canvas=NULL;
-        g_message("Canvas Removed!!!!!!!!!!!!!!!");
+//            sc_canvas_destroy(SC_CANVAS(priv->canvas));
+//            priv->canvas=NULL;
+//        sc_canvas_hide_menu(SC_CANVAS(priv->canvas));
+            g_message("Canvas Removed!!!!!!!!!!!!!!!");
         
         }else
         if(!priv->rect_selected){
@@ -333,6 +340,7 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
         }
 
     }
+    gtk_widget_queue_resize(widget);
 
     return TRUE;
 
@@ -350,7 +358,7 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
 
 
 //    g_message("window draw()");
-g_print("draw()");
+//g_print("draw()");
   
     GdkRectangle*cur_rect=&priv->current_rect;
 
@@ -388,7 +396,10 @@ g_print("draw()");
     // Current rectangle's Decorator
     cairo_set_source_rgba(cr,0,0.9,0.0,0.9);
     cairo_set_line_width(cr,SCALE);
-    cairo_rectangle(cr,cur_rect->x,cur_rect->y,cur_rect->width,cur_rect->height);
+
+    cairo_rectangle(cr,
+            cur_rect->x-SCALE/2, cur_rect->y-SCALE/2,
+            cur_rect->width+SCALE, cur_rect->height+SCALE);
     cairo_stroke(cr);
 
 
@@ -397,6 +408,14 @@ g_print("draw()");
 
 
 
+
+
+if(priv->rect_selected)
+    goto draw_childrens;
+
+
+/* Draw Preview Area*/
+
     GdkPixbuf *pfview=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,VIEW_Width,VIEW_Height);
 
     gdk_pixbuf_scale(priv->fullpf,pfview,0,0,VIEW_Width,VIEW_Height,
@@ -404,13 +423,9 @@ g_print("draw()");
             SCALE,SCALE,GDK_INTERP_TILES);
 
     
-    cairo_save(cr);
+//    cairo_save(cr);
 
 
-
-
-
-/* Draw Preview Area*/
 
     cairo_rectangle(cr,priv->px+VIEW_bias,priv->py+VIEW_bias,VIEW_Width,VIEW_Height);
 
@@ -451,16 +466,15 @@ g_print("draw()");
     cairo_show_text(cr,desc);
     g_free(desc);
 
+//    cairo_restore(cr);
 
 
-
-
-    cairo_restore(cr);
-
+draw_childrens:
 
     GTK_WIDGET_CLASS(sc_window_parent_class)->draw(widget,cr);
 //    gtk_container_propagate_draw(GTK_CONTAINER(widget),priv->fixed,cr);
 
+//    g_message("window DRAW()");
 
 //   return TRUE; 
     return FALSE;
