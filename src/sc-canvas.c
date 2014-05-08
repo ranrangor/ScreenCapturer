@@ -3,6 +3,7 @@
 #include"sc-operable.h"
 #include"sc-arrow.h"
 #include"sc-shape.h"
+#include"sc-utils.h"
 
 
 
@@ -703,10 +704,12 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
 
     //Add MENU ITEMS 
     priv->operable_box= gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
-    GtkWidget*item_undo= gtk_button_new_with_label("Undo");
-    GtkWidget*item_save= gtk_button_new_with_label("Save");
-    GtkWidget*item_done= gtk_button_new_with_label("Done");
-    GtkWidget*item_exit= gtk_button_new_with_label("Exit");
+    
+
+    GtkWidget*item_undo=sc_image_button_new_by_size(icon_undo,20);
+    GtkWidget*item_save=sc_image_button_new_by_size(icon_save,20);
+    GtkWidget*item_done=sc_image_button_new_by_size(icon_done,20);
+    GtkWidget*item_exit=sc_image_button_new_by_size(icon_exit,20);
 
     g_signal_connect(G_OBJECT(item_undo),"clicked",G_CALLBACK(undo_cb),canvas);
     g_signal_connect(G_OBJECT(item_save),"clicked",G_CALLBACK(save_cb),canvas);
