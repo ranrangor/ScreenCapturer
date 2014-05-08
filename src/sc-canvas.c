@@ -723,6 +723,7 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
 
 
 
+/*
 static void operable_clicked(GtkWidget*widget,gpointer d)
 {
 
@@ -738,7 +739,6 @@ static void operable_clicked(GtkWidget*widget,gpointer d)
 
 }
 
-/*
 GtkWidget* sc_canvas_add_operater(SCCanvas*canvas, GtkWidget*operable,int pos)
 {
 
@@ -777,7 +777,7 @@ GtkWidget* sc_canvas_add_operater(SCCanvas*canvas, GtkWidget*operable,int pos)
 }
 */
 
-
+/*
 
 
 static void shape_clicked(GtkWidget*widget,gpointer d)
@@ -791,7 +791,7 @@ SCCanvas*canvas=SC_CANVAS(d);
     gtk_widget_show_all(canvas);
 
 }
-/*
+
 static void arrow_clicked(GtkWidget*widget,gpointer d)
 {
 
@@ -804,7 +804,7 @@ SCCanvas*canvas=SC_CANVAS(d);
 
 }
 
-*/
+
 static void painter_clicked(GtkWidget*widget,gpointer d)
 {
 
@@ -841,11 +841,11 @@ void sc_canvas_register_operables(SCCanvas*canvas)
     GtkWidget*shape=gtk_button_new_with_label("shape");
     gtk_box_pack_end(GTK_BOX(priv->operable_box),shape,FALSE,FALSE,0);
     g_signal_connect(G_OBJECT(shape),"clicked",G_CALLBACK(shape_clicked),canvas);//&info);
-/*
+/ *
     GtkWidget*arrow=gtk_button_new_with_label("arrow");
     gtk_box_pack_end(GTK_BOX(priv->operable_box),arrow,FALSE,FALSE,0);
     g_signal_connect(G_OBJECT(arrow),"clicked",G_CALLBACK(arrow_clicked),canvas);//&info);
-*/
+* /
     GtkWidget*painter=gtk_button_new_with_label("painter");
     gtk_box_pack_end(GTK_BOX(priv->operable_box),painter,FALSE,FALSE,0);
     g_signal_connect(G_OBJECT(painter),"clicked",G_CALLBACK(painter_clicked),canvas);//&info);
@@ -854,7 +854,7 @@ void sc_canvas_register_operables(SCCanvas*canvas)
 }
 
 
-
+*/
 
 
 void sc_canvas_destroy(SCCanvas *canvas)
@@ -953,6 +953,12 @@ void sc_canvas_undo(SCCanvas* canvas)
 }
 
 
+
+GtkWidget*sc_canvas_get_operable_box(SCCanvas*canvas)
+{
+    return canvas->priv->operable_box;
+
+}
 
 
 

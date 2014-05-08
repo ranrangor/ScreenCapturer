@@ -9,7 +9,7 @@ LIBS=`pkg-config --libs gtk+-3.0` -lm
 
 
 
-scapturer: main.c sc-app.o sc-window.o sc-canvas.o sc-operable.o sc-arrow.o sc-shape.o sc-painter.o
+scapturer: main.c sc-app.o sc-window.o sc-canvas.o sc-operable.o sc-operators.o sc-arrow.o sc-shape.o sc-painter.o
 	${CC} ${CFLAGS} $^ ${LIBS} -o $@
 
 sc-app.o: sc-app.c sc-app.h
@@ -19,6 +19,9 @@ sc-window.o: sc-window.c sc-window.h
 	${CC} ${CFLAGS} -c $< -o $@
 
 sc-canvas.o: sc-canvas.c sc-canvas.h
+	${CC} ${CFLAGS} -c $< -o $@
+
+sc-operble.o: sc-operators.c sc-operators.h
 	${CC} ${CFLAGS} -c $< -o $@
 
 sc-operble.o: sc-operable.c sc-operable.h

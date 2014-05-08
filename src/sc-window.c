@@ -2,6 +2,7 @@
 #include"sc-window.h"
 #include"sc-app.h"
 #include"sc-canvas.h"
+#include"sc-operators.h"
 #include<gdk-pixbuf/gdk-pixbuf.h>
 
 
