@@ -48,10 +48,12 @@ SCCanvas*canvas=SC_CANVAS(d);
 }
 
 
-void sc_canvas_register_operables(SCCanvas*canvas)
+void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win)
 {
 
     SCCanvasPriv*priv=SC_CANVAS(canvas)->priv;
+
+    sc_canvas_set_appwin(canvas,win);
 
     //if(!priv->menu){
     sc_canvas_add_me(canvas,sc_canvas_get_menu(canvas));

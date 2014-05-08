@@ -16,7 +16,7 @@ static void arrow_clicked(GtkWidget*widget,gpointer d);
 static void painter_clicked(GtkWidget*widget,gpointer d);
 
 
-void sc_canvas_register_operables(SCCanvas*canvas);
+void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win);
 
 
 
