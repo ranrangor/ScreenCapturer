@@ -1,4 +1,5 @@
 #include"sc-arrow.h"
+#include"sc-canvas.h"
 #include"sc-operable.h"
 #include<math.h>
 #include<gtk/gtk.h>
@@ -343,6 +344,12 @@ static gboolean sc_arrow_release(GtkWidget*widget, GdkEventButton*e)
 
     arrow->pressed=FALSE;
 
+    SCCanvas* canvas=sc_operable_get_canvas(SC_OPERABLE(widget));
+
+    sc_canvas_step_done(canvas);
+    sc_arrow_reset(arrow);
+
+
     return TRUE;
 
 
@@ -365,7 +372,7 @@ static gboolean sc_arrow_motion(GtkWidget*widget, GdkEventMotion*e)
     }
 
 
-
+    return TRUE;
 }
 
 
@@ -395,11 +402,24 @@ static void sc_arrow_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
 
 
 
-
-
-SCOperable* sc_arrow_new()
+void sc_arrow_reset(SCArrow*arrow)
 {
-    return (SCOperable*) g_object_new(SC_TYPE_ARROW,NULL);
+
+    arrow->x0=0;
+    arrow->y0=0;
+    arrow->x1=0;
+    arrow->y1=0;
+
+}
+
+
+
+
+SCOperable* sc_arrow_new(SCCanvas*canvas)
+{
+    SCOperable*operable=(SCOperable*)g_object_new(SC_TYPE_ARROW,NULL);
+    sc_operable_set_canvas(operable,canvas);
+    return operable;
 
 }
 
