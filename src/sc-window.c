@@ -298,7 +298,6 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
         priv->button_down=FALSE;
         priv->rect_selected=TRUE;
 //
-//    if(priv->canvas==NULL){
 
         priv->canvas=sc_canvas_new(priv->current_rect.x,
                 priv->current_rect.y,
@@ -307,17 +306,14 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
        
 
 
-//    sc_canvas_add_op(canvas,sc_shape_new(canvas));
-//    sc_canvas_add_me(priv->canvas,sc_canvas_get_menu(canvas));
 
-sc_canvas_register_operables(priv->canvas,(widget));
+    sc_canvas_register_operables(priv->canvas,(widget));
 
 
     gtk_container_add(GTK_CONTAINER(widget),priv->canvas);
 
         gtk_widget_show_all(priv->canvas);
 
-//        sc_canvas_show_menu(priv->canvas);
 
     }
 
@@ -327,11 +323,7 @@ sc_canvas_register_operables(priv->canvas,(widget));
             priv->rect_selected=FALSE;
 
 //PPPPPPPPPPPPPPPPPPPPPP
-////PPPPPPPPPPPPPPPPPP            
             gtk_container_remove(GTK_CONTAINER(widget),priv->canvas);
-//            sc_canvas_destroy(SC_CANVAS(priv->canvas));
-//            priv->canvas=NULL;
-//        sc_canvas_hide_menu(SC_CANVAS(priv->canvas));
             g_message("Canvas Removed!!!!!!!!!!!!!!!");
         
         }else
@@ -358,14 +350,9 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
     SCWindow*scwin=SC_WINDOW(widget);
     SCWindowPriv*priv=scwin->priv;
 
-
-
-//    g_message("window draw()");
-//g_print("draw()");
   
     GdkRectangle*cur_rect=&priv->current_rect;
 
-  
     gdk_cairo_set_source_pixbuf(cr,priv->fullpf,0,0);
     cairo_paint(cr);
 
@@ -379,15 +366,11 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
             );
 
 
-//    get_area(&Rects,px,py,&rectangle);
     cairo_rectangle(cr,cur_rect->x,cur_rect->y,cur_rect->width,cur_rect->height);
 
     cairo_set_fill_rule(cr,CAIRO_FILL_RULE_EVEN_ODD);
 
-    
-
     cairo_clip(cr);
-//    cairo_clip_preserve(cr);
 
 
     //shadow unselected area
@@ -401,8 +384,8 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
     cairo_set_line_width(cr,SCALE);
 
     cairo_rectangle(cr,
-            cur_rect->x-SCALE/2, cur_rect->y-SCALE/2,
-            cur_rect->width+SCALE, cur_rect->height+SCALE);
+            cur_rect->x-SCALE/2-0.05, cur_rect->y-SCALE/1.9-0.05,
+            cur_rect->width+SCALE+0.1, cur_rect->height+SCALE+0.1);
     cairo_stroke(cr);
 
 
@@ -424,9 +407,6 @@ if(priv->rect_selected)
     gdk_pixbuf_scale(priv->fullpf,pfview,0,0,VIEW_Width,VIEW_Height,
             -priv->px*SCALE+VIEW_Width/2, -priv->py*SCALE+VIEW_Height/2,
             SCALE,SCALE,GDK_INTERP_TILES);
-
-    
-//    cairo_save(cr);
 
 
 
