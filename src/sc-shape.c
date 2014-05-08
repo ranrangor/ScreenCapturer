@@ -333,7 +333,7 @@ static gboolean sc_shape_release(GtkWidget*widget, GdkEventButton*e)
 
     shape->pressed=FALSE;
 
-    SCCanvas* canvas=sc_operable_get_canvas(widget);
+    SCCanvas* canvas=sc_operable_get_canvas(SC_OPERABLE(widget));
 
     sc_canvas_step_done(canvas);
     sc_shape_reset(shape);
@@ -407,7 +407,6 @@ void sc_shape_reset(SCShape*shape)
 SCOperable* sc_shape_new(SCCanvas*canvas)
 {
     SCOperable*operable=(SCOperable*)g_object_new(SC_TYPE_SHAPE,NULL);
-//    operable->canvas=canvas;
     sc_operable_set_canvas(operable,canvas);
     return operable;
 }

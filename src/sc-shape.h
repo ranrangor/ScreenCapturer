@@ -52,7 +52,7 @@ typedef struct _SCShapeClass{
 GType sc_shape_get_type(void);
 
 
-SCOperable* sc_shape_new();
+SCOperable* sc_shape_new(SCCanvas*canvas);
 
 void sc_shape_reset(SCShape*shape);
 
