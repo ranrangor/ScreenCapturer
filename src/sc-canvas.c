@@ -314,6 +314,7 @@ static void sc_canvas_realize(GtkWidget*widget)
 
 /* menuwindow */
 
+    attributes.window_type=GDK_WINDOW_TEMP;
         attributes.x=10;
         attributes.y=10;
         attributes.width=1;
@@ -321,6 +322,9 @@ static void sc_canvas_realize(GtkWidget*widget)
 
     attributes.cursor=gdk_cursor_new_for_display(gtk_widget_get_display(widget),GDK_FLEUR);
     attributes_mask=GDK_WA_X|GDK_WA_Y|GDK_WA_VISUAL|GDK_WA_CURSOR;
+
+
+    parent_window=gdk_screen_get_root_window(gtk_widget_get_screen(widget));
 
     priv->menuwindow=gdk_window_new(parent_window,&attributes,attributes_mask);
     gtk_widget_register_window(widget,priv->menuwindow);
