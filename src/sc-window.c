@@ -307,7 +307,7 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
 
 
 
-    sc_canvas_register_operables(priv->canvas,(widget));
+    sc_canvas_register_operables(SC_CANVAS(priv->canvas),widget);
 
 
     gtk_container_add(GTK_CONTAINER(widget),priv->canvas);
@@ -524,5 +524,12 @@ SCWindow* sc_window_new( SCApp*app)
 }
 
 
+GdkPixbuf*sc_window_get_pixbuf(SCWindow*win)
+{
+
+    SCWindowPriv*priv = win->priv;
+    return priv->fullpf;
+    
+}
 
 
