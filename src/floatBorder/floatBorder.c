@@ -316,14 +316,14 @@ priv->children=NULL;
 
 priv->hwnd_mask[HWND_MOVE]=TRUE;
 priv->hwnd_mask[HWND_BR_RESIZE]=TRUE;
-priv->hwnd_mask[HWND_BL_RESIZE]=TRUE;
-priv->hwnd_mask[HWND_TL_RESIZE]=TRUE;
-priv->hwnd_mask[HWND_TR_RESIZE]=TRUE;
+priv->hwnd_mask[HWND_BL_RESIZE]=!TRUE;
+priv->hwnd_mask[HWND_TL_RESIZE]=!TRUE;
+priv->hwnd_mask[HWND_TR_RESIZE]=!TRUE;
 
 priv->hwnd_mask[HWND_RIGHT]=TRUE;
 priv->hwnd_mask[HWND_BOTTOM]=TRUE;
-priv->hwnd_mask[HWND_LEFT]=TRUE;
-priv->hwnd_mask[HWND_TOP]=TRUE;
+priv->hwnd_mask[HWND_LEFT]=!TRUE;
+priv->hwnd_mask[HWND_TOP]=!TRUE;
 priv->show_border=TRUE;
 /*
 priv->frozen=FALSE;
@@ -2058,8 +2058,8 @@ static void _float_border_put(FloatBorder*fb,GtkWidget*widget,int x,int y,int w,
     g_return_if_fail(GTK_IS_WIDGET(widget));
  
     new_child=init_fbchild(widget,x,y,w,h,act,shr,
-            HWND_RIGHT,HWND_BOTTOM,HWND_LEFT,HWND_TOP,
-            HWND_BR_RESIZE,HWND_TR_RESIZE,HWND_BL_RESIZE,HWND_MOVE,NULL);
+            HWND_RIGHT,HWND_BOTTOM,
+            HWND_BR_RESIZE,HWND_MOVE,NULL);
     mask_props(fb,new_child);
 
     gtk_widget_set_parent(widget,GTK_WIDGET(fb));
@@ -2103,7 +2103,8 @@ static void remove_cache(FloatBorderChild*fbchild)
     int i;
     for(i=0;i<N_HWNDS;i++){
         if(fbchild->hwnded[i]&& fbchild->hwnds[i])
-            g_hash_table_remove(priv->window2child,fbchild->hwnds[i]);
+            ;
+//            g_hash_table_remove(priv->window2child,fbchild->hwnds[i]);
     }
 
 }
