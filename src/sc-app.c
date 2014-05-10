@@ -55,26 +55,6 @@ static void sc_app_activate(GApplication * app)
 
 }
 
-static void
-sc_app_open(GApplication * app,
-		 GFile ** files, gint n_files, const gchar * hint)
-{
-    GList *windows;
-    SCWindow *win;
-    int i;
-
-    windows = gtk_application_get_windows(GTK_APPLICATION(app));
-    if (windows)
-	win = SC_WINDOW(windows->data);
-//    else
-//	win = sc_window_new();
-
-//    for (i = 0; i < n_files; i++)
-//	sc_window_open(win, files[i]);
-
-
-    gtk_window_present(GTK_WINDOW(win));
-}
 
 static void sc_app_class_init(SCAppClass * class)
 {
@@ -86,5 +66,6 @@ SCApp *sc_app_new(void)
 {
     return g_object_new(SC_APP_TYPE,
 			"application-id", "org.gtk.screencapturer",
-			"flags", G_APPLICATION_HANDLES_OPEN, NULL);
+            NULL);
+			//"flags", G_APPLICATION_HANDLES_COMMAND_LINE, NULL);
 }
