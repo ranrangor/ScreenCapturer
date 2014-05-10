@@ -290,7 +290,7 @@ static void sc_canvas_realize(GtkWidget*widget)
         GDK_BUTTON_RELEASE_MASK|
         GDK_POINTER_MOTION_MASK;
 
-    attributes.cursor=gdk_cursor_new_for_display(gtk_widget_get_display(widget),GDK_FLEUR);
+    attributes.cursor=gdk_cursor_new_for_display(gtk_widget_get_display(widget),GDK_TCROSS);
 
     attributes_mask=GDK_WA_X|GDK_WA_Y|GDK_WA_VISUAL|GDK_WA_CURSOR;
 
