@@ -48,6 +48,22 @@ SCCanvas*canvas=SC_CANVAS(d);
 }
 
 
+
+static void text_clicked(GtkWidget*widget,gpointer d)
+{
+
+SCCanvas*canvas=SC_CANVAS(d);
+
+    GtkWidget*text=sc_text_new(canvas);
+
+    sc_canvas_add_op(canvas,text);
+    gtk_widget_show_all(canvas);
+
+}
+
+
+
+
 void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win)
 {
 
@@ -73,6 +89,11 @@ void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win)
     GtkWidget*painter=gtk_button_new_with_label("painter");
     gtk_box_pack_end(GTK_BOX(operable_box),painter,FALSE,FALSE,0);
     g_signal_connect(G_OBJECT(painter),"clicked",G_CALLBACK(painter_clicked),canvas);//&info);
+
+    GtkWidget*text=gtk_button_new_with_label("text");
+    gtk_box_pack_end(GTK_BOX(operable_box),text,FALSE,FALSE,0);
+    g_signal_connect(G_OBJECT(text),"clicked",G_CALLBACK(text_clicked),canvas);//&info);
+
 
 
 }
