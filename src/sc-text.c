@@ -131,6 +131,7 @@ static gboolean sc_text_press(GtkWidget*widget, GdkEventButton*e)
             SCCanvas* canvas=sc_operable_get_canvas(SC_OPERABLE(widget));
 
             if(sc_text_is_focus(text)){
+                gdk_flush();//
                 sc_canvas_step_done(canvas);
                 text->is_focus=FALSE;
                 

@@ -473,23 +473,31 @@ void sc_window_setup(SCWindow*scwin)
 {
 
 //    g_message("SCWindow Setup...");
-
+//    GdkScreen*screen;
     SCWindowPriv*priv=scwin->priv;
 
     GtkWindow*win=GTK_WINDOW(scwin);
     GtkWidget*widget=GTK_WIDGET(scwin);
 
-    //gtk_window_maximize(win);
+//    gtk_window_set_decorated(win,FALSE);
+
+
+//    gtk_window_set_type_hint(win,GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+
+//    gtk_window_maximize(win);
+//    gtk_window_move(win,0,0);
     gtk_window_fullscreen(win);
+//    g_object_set(win,"type",GTK_WINDOW_POPUP,NULL);
     gtk_window_set_keep_above(win,TRUE);
+
 
     gtk_widget_add_events(widget,GDK_POINTER_MOTION_MASK|GDK_BUTTON_RELEASE_MASK);
 
+//    screen=gtk_widget_get_screen(widget);
+//gtk_widget_set_size_request(widget,gdk_screen_get_width(screen),
+//        gdk_screen_get_height(screen));
 
-//    GdkDisplay*display=gdk_display_get_default();
-//    GdkScreen*screen=gdk_display_get_screen(display);
-
-    priv->root_win=gdk_screen_get_root_window(gtk_widget_get_screen(widget));
+    priv->root_win=gdk_screen_get_root_window(screen);
 
    priv->fullpf=gdk_pixbuf_get_from_window(priv->root_win,0,0,
            gdk_window_get_width(priv->root_win),
@@ -515,7 +523,7 @@ void sc_window_setup(SCWindow*scwin)
 
 SCWindow* sc_window_new( SCApp*app)
 {
-    SCWindow*win=g_object_new(SC_TYPE_WINDOW,"application",app,NULL);
+    SCWindow*win=g_object_new(SC_TYPE_WINDOW,"application",app,"type",GTK_WINDOW_TOPLEVEL,NULL);
     
     //global variable
     Timeval=time(NULL);
