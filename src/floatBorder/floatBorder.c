@@ -1640,25 +1640,27 @@ static void float_border_realize(GtkWidget*widget)
 
 
 
+
+static gboolean remove_child(FloatBorderChild*fbchild,gpointer d)
+{
+
+    FloatBorder*fb=fbchild->floatborder;
+
+    float_border_remove(fb,fbchild->widget);
+
+    return FALSE;
+}
+
+
+
 static void float_border_unrealize(GtkWidget*widget)
 {
 
     FloatBorder*fb=FLOAT_BORDER(widget);
 
-    for_all_children(fb,destroy_hwnds,fb);
-
-
-    if(gtk_widget_get_has_window(widget)){
-        
-        GdkWindow*window=gtk_widget_get_window(widget);
-        gdk_window_destroy(window);
-//        gtk_widget_set_window(widget,NULL);
-        gtk_widget_unregister_window(widget,window);
-
-    }else{
+    for_all_children(fb,remove_child,fb);
 
     GTK_WIDGET_CLASS(float_border_parent_class)->unrealize(widget);
-    }
 
 }
 
@@ -2075,7 +2077,6 @@ static FloatBorderChild* init_fbchild(GtkWidget*widget,int x,int y,int w,int h,g
 static void fini_fbchild(FloatBorderChild*child)
 {
 
-    gtk_widget_destroy(child->widget);
     g_slice_free(FloatBorderChild,child);
 
 }
