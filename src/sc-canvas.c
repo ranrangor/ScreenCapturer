@@ -439,7 +439,7 @@ static gboolean sc_canvas_draw(GtkWidget* widget,cairo_t*cr)
 
     SCCanvasPriv*priv=SC_CANVAS(widget)->priv;
 
-
+/*
 //    if(priv->show_menu){
     cairo_t*tcr=gdk_cairo_create(priv->menuwindow);
     cairo_set_source_rgba(tcr,0.5,0.5,0.9,0.9);
@@ -447,10 +447,10 @@ static gboolean sc_canvas_draw(GtkWidget* widget,cairo_t*cr)
     cairo_paint(tcr);
 
  //   g_print("ooo Priv->menu:%x\n",priv->menu);
-//    gtk_container_propagate_draw(GTK_CONTAINER(widget),priv->menu,cr);
+    gtk_container_propagate_draw(GTK_CONTAINER(widget),priv->menu,cr);
 //        g_message("Show menu");
 //    }
-
+*/
     GList*l=priv->pixbufs;
     if(l){
     gdk_cairo_set_source_pixbuf(cr,l->data,priv->position.x,priv->position.y);
@@ -458,17 +458,17 @@ static gboolean sc_canvas_draw(GtkWidget* widget,cairo_t*cr)
     }
 
 
-    GTK_WIDGET_CLASS(sc_canvas_parent_class)->draw(widget,cr);
+    return GTK_WIDGET_CLASS(sc_canvas_parent_class)->draw(widget,cr);
 
 
-    /*
+/*
     if(priv->operator){
         gtk_container_propagate_draw(GTK_CONTAINER(widget),priv->operator,cr);
 //        g_message("Draw..() has child..");
     }
-    */
-    return FALSE;
-
+    
+    return TRUE;
+*/
 }
 
 
