@@ -665,14 +665,14 @@ GtkWidget*sc_canvas_new(int x,int y,int width, int height)
 
 
 
-static void undo_cb(GtkWidget*widget,gpointer d)
+void canvas_undo_cb(GtkWidget*widget,gpointer d)
 {
     SCCanvas* canvas=SC_CANVAS(d);
     sc_canvas_undo(canvas);
 
 }
 
-static void save_cb(GtkWidget*widget,gpointer d)
+void canvas_save_cb(GtkWidget*widget,gpointer d)
 {
     SCCanvas* canvas=SC_CANVAS(d);
     sc_canvas_save(canvas);
@@ -681,7 +681,7 @@ static void save_cb(GtkWidget*widget,gpointer d)
 }
 
 
-static void exit_cb(GtkWidget*widget,gpointer d)
+void canvas_exit_cb(GtkWidget*widget,gpointer d)
 {
     SCCanvas* canvas=SC_CANVAS(d);
     sc_canvas_exit(canvas);
@@ -715,9 +715,9 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
     GtkWidget*item_done=sc_image_button_new_by_size(icon_done,20);
     GtkWidget*item_exit=sc_image_button_new_by_size(icon_exit,20);
 
-    g_signal_connect(G_OBJECT(item_undo),"clicked",G_CALLBACK(undo_cb),canvas);
-    g_signal_connect(G_OBJECT(item_save),"clicked",G_CALLBACK(save_cb),canvas);
-    g_signal_connect(G_OBJECT(item_exit),"clicked",G_CALLBACK(exit_cb),canvas);
+    g_signal_connect(G_OBJECT(item_undo),"clicked",G_CALLBACK(canvas_undo_cb),canvas);
+    g_signal_connect(G_OBJECT(item_save),"clicked",G_CALLBACK(canvas_save_cb),canvas);
+    g_signal_connect(G_OBJECT(item_exit),"clicked",G_CALLBACK(canvas_exit_cb),canvas);
 
 //    gtk_box_pack_start(GTK_BOX(priv->menu),priv->operable_box,TRUE,TRUE,0);
 

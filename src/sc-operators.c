@@ -10,7 +10,7 @@
 
 
 
-static void shape_clicked(GtkWidget*widget,gpointer d)
+void operable_shape_clicked(GtkWidget*widget,gpointer d)
 {
 
 SCCanvas*canvas=SC_CANVAS(d);
@@ -22,7 +22,7 @@ SCCanvas*canvas=SC_CANVAS(d);
 
 }
 
-static void arrow_clicked(GtkWidget*widget,gpointer d)
+void operable_arrow_clicked(GtkWidget*widget,gpointer d)
 {
 
 SCCanvas*canvas=SC_CANVAS(d);
@@ -35,7 +35,7 @@ SCCanvas*canvas=SC_CANVAS(d);
 }
 
 
-static void painter_clicked(GtkWidget*widget,gpointer d)
+void operable_painter_clicked(GtkWidget*widget,gpointer d)
 {
 
 SCCanvas*canvas=SC_CANVAS(d);
@@ -49,7 +49,7 @@ SCCanvas*canvas=SC_CANVAS(d);
 
 
 
-static void text_clicked(GtkWidget*widget,gpointer d)
+void operable_text_clicked(GtkWidget*widget,gpointer d)
 {
 
 SCCanvas*canvas=SC_CANVAS(d);
@@ -80,19 +80,19 @@ void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win)
 
     GtkWidget*shape=gtk_button_new_with_label("shape");
     gtk_box_pack_end(GTK_BOX(operable_box),shape,FALSE,FALSE,0);
-    g_signal_connect(G_OBJECT(shape),"clicked",G_CALLBACK(shape_clicked),canvas);//&info);
+    g_signal_connect(G_OBJECT(shape),"clicked",G_CALLBACK(operable_shape_clicked),canvas);//&info);
 
     GtkWidget*arrow=gtk_button_new_with_label("arrow");
     gtk_box_pack_end(GTK_BOX(operable_box),arrow,FALSE,FALSE,0);
-    g_signal_connect(G_OBJECT(arrow),"clicked",G_CALLBACK(arrow_clicked),canvas);//&info);
+    g_signal_connect(G_OBJECT(arrow),"clicked",G_CALLBACK(operable_arrow_clicked),canvas);//&info);
 
     GtkWidget*painter=gtk_button_new_with_label("painter");
     gtk_box_pack_end(GTK_BOX(operable_box),painter,FALSE,FALSE,0);
-    g_signal_connect(G_OBJECT(painter),"clicked",G_CALLBACK(painter_clicked),canvas);//&info);
+    g_signal_connect(G_OBJECT(painter),"clicked",G_CALLBACK(operable_painter_clicked),canvas);//&info);
 
     GtkWidget*text=gtk_button_new_with_label("text");
     gtk_box_pack_end(GTK_BOX(operable_box),text,FALSE,FALSE,0);
-    g_signal_connect(G_OBJECT(text),"clicked",G_CALLBACK(text_clicked),canvas);//&info);
+    g_signal_connect(G_OBJECT(text),"clicked",G_CALLBACK(operable_text_clicked),canvas);//&info);
 
 
 
