@@ -684,7 +684,7 @@ static void _float_border_forall(GtkContainer*container, gboolean include_intern
     FloatBorderChild*fbchild;
 
     GList*list=priv->children;
-    g_print("=-list::%x\n\n",list);
+//    g_print("=-list::%x\n\n",list);
     while(list){
     fbchild=list->data;
    (*callback)(fbchild->widget,callback_data); 
@@ -1538,6 +1538,7 @@ static gboolean unmap_hwnds(FloatBorderChild*fbc,gpointer d){
     FloatBorder*fb=fbc->floatborder;//FLOAT_BORDER(d);
     FloatBorderPriv*priv=fb->priv;
 
+    g_print("unmapping hwnds..\n");
 
     if(!priv->frozen){
 
@@ -1646,8 +1647,18 @@ static void float_border_unrealize(GtkWidget*widget)
 
     for_all_children(fb,destroy_hwnds,fb);
 
-    GTK_WIDGET_CLASS(float_border_parent_class)->unrealize(widget);
 
+    if(gtk_widget_get_has_window(widget)){
+        
+        GdkWindow*window=gtk_widget_get_window(widget);
+        gdk_window_destroy(window);
+//        gtk_widget_set_window(widget,NULL);
+        gtk_widget_unregister_window(widget,window);
+
+    }else{
+
+    GTK_WIDGET_CLASS(float_border_parent_class)->unrealize(widget);
+    }
 
 }
 
@@ -1668,7 +1679,7 @@ static void float_border_map(GtkWidget*widget)
 
 static void float_border_unmap(GtkWidget*widget)
 {
-
+    g_print("floatBorder Unmap()...\n");
 
     FloatBorder*fb=FLOAT_BORDER(widget);
     for_all_children(fb,unmap_hwnds,fb);
@@ -1706,6 +1717,31 @@ static gboolean child_sizeallocate(FloatBorderChild*fbchild,gpointer d)
         child_allocation.x += allocation.x;
         child_allocation.y += allocation.y;
     }
+
+
+    GtkRequisition childmin;
+    gtk_widget_get_preferred_size(fbchild->widget,&childmin,NULL);
+    fbchild->min_siz.width=childmin.width;
+    fbchild->min_siz.height=childmin.height;
+
+    g_message("fbchild . preferred{%d,%d}\n",childmin.width,childmin.height);
+/*
+    if(childmin.width>fbchild->position[REF_CORNER].x)
+        fbchild->position[REF_CORNER].x=childmin.width;
+
+    if(childmin.height>fbchild->position[REF_CORNER].y)
+        fbchild->position[REF_CORNER].y=childmin.height;
+
+*/
+
+        fbchild->position[REF_CORNER].x = CLAMP(fbchild->position[REF_CORNER].x,
+                fbchild->min_siz.width,
+                allocation.width-HWND_THICKNESS-fbchild->x);
+
+        fbchild->position[REF_CORNER].y = CLAMP(fbchild->position[REF_CORNER].y,
+                fbchild->min_siz.height,
+                allocation.height-HWND_THICKNESS-fbchild->y);
+
 
     child_allocation.width = fbchild->position[REF_CORNER].x;
     child_allocation.height = fbchild->position[REF_CORNER].y;
@@ -2039,6 +2075,7 @@ static FloatBorderChild* init_fbchild(GtkWidget*widget,int x,int y,int w,int h,g
 static void fini_fbchild(FloatBorderChild*child)
 {
 
+    gtk_widget_destroy(child->widget);
     g_slice_free(FloatBorderChild,child);
 
 }
@@ -2087,7 +2124,7 @@ void float_border_put(FloatBorder*fb, GtkWidget*w, int x,int y)
 
 void float_border_put_with_size(FloatBorder*fb, GtkWidget*widget, int x,int y,int w,int h)
 {
-    _float_border_put(fb,widget,x,y,w,h,TRUE,TRUE);
+    _float_border_put(fb,widget,x,y,w,h,TRUE,FALSE);
 
 }
 
