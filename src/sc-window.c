@@ -473,7 +473,7 @@ void sc_window_setup(SCWindow*scwin)
 {
 
 //    g_message("SCWindow Setup...");
-//    GdkScreen*screen;
+    GdkScreen*screen;
     SCWindowPriv*priv=scwin->priv;
 
     GtkWindow*win=GTK_WINDOW(scwin);
@@ -493,7 +493,7 @@ void sc_window_setup(SCWindow*scwin)
 
     gtk_widget_add_events(widget,GDK_POINTER_MOTION_MASK|GDK_BUTTON_RELEASE_MASK);
 
-//    screen=gtk_widget_get_screen(widget);
+    screen=gtk_widget_get_screen(widget);
 //gtk_widget_set_size_request(widget,gdk_screen_get_width(screen),
 //        gdk_screen_get_height(screen));
 
