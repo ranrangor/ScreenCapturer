@@ -3,6 +3,9 @@
 #include"sc-operable.h"
 #include<math.h>
 #include<gtk/gtk.h>
+#include"menus/sc-colorchooser.h"
+#include"menus/sc-widthsetter.h"
+
 
 
 
@@ -36,43 +39,24 @@ static void sc_arrow_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
 
 
 
-static void but2_clicked(GtkWidget*widget,SCOperable*operable)
-{
-
-    SCArrow*arrow=SC_ARROW(operable);
-    arrow->line_width=2;
-}
-
-
-static void but5_clicked(GtkWidget*widget,SCOperable*operable)
-{
-
-    SCArrow*arrow=SC_ARROW(operable);
-    arrow->line_width=5;
-
-}
-
-
-
 
 
 GtkWidget*arrow_obtain_menu(SCOperable*operable)
 {
 
-    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
-    GtkWidget*but_2=gtk_button_new_with_label("2");
-    GtkWidget*but_5=gtk_button_new_with_label("5");
+    SCArrow* arrow=SC_ARROW(operable);
 
-    g_signal_connect(G_OBJECT(but_2),"clicked",G_CALLBACK(but2_clicked),operable);
-    g_signal_connect(G_OBJECT(but_5),"clicked",G_CALLBACK(but5_clicked),operable);
+    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+    GtkWidget*color=sc_color_chooser_new();
+    GtkWidget*width=sc_width_setter_new(3);
 
+    arrow->colorchooser=color;
+    arrow->widthsetter=width;
+    g_object_ref(color);
+    g_object_ref(width);
 
-    gtk_box_pack_start(GTK_BOX(box),but_2,FALSE,FALSE,0);
-    gtk_box_pack_start(GTK_BOX(box),but_5,FALSE,FALSE,0);
-
-    gtk_widget_show(but_2);
-    gtk_widget_show(but_5);
-    gtk_widget_show(box);
+    gtk_box_pack_start(GTK_BOX(box),width,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),color,FALSE,FALSE,0);
 
     return box;
 
@@ -172,16 +156,15 @@ static void sc_arrow_realize(GtkWidget*widget)
         GDK_BUTTON_PRESS_MASK|
         GDK_BUTTON_RELEASE_MASK;
 
+    attributes.cursor=gdk_cursor_new(GDK_PENCIL);
 
-    attributes_mask=GDK_WA_X|GDK_WA_Y;
-
-
+    attributes_mask=GDK_WA_X|GDK_WA_Y|GDK_WA_CURSOR;
 
     event_window=gdk_window_new(parent_window,&attributes,attributes_mask);
-
     gtk_widget_register_window(widget,event_window);
 
     arrow->event_window=event_window;
+    g_object_unref(attributes.cursor);
 
 
 }
@@ -283,7 +266,7 @@ static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr)
     dx=arrow->x1-arrow->x0;
     dy=arrow->y1-arrow->y0;
 
-    if(dx>0){
+    if(dx>=0){
    
         rad= atan(((double)dy)/dx);
 
@@ -295,7 +278,8 @@ static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr)
 
     cairo_save(cr);
     cairo_translate(cr,arrow->x1,arrow->y1);
-
+//FIXME
+//WARNING:: invalid matrix (not invertible)
     cairo_rotate(cr,rad);
 
     cairo_move_to(cr,0,0);
@@ -328,6 +312,12 @@ static gboolean sc_arrow_press(GtkWidget*widget, GdkEventButton*e)
 
     arrow->x1=arrow->x0;
     arrow->y1=arrow->y0;
+
+
+//    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(arrow->colorchooser));
+//    gdk_rgba_parse(colorspec,&painter->color);
+//
+//    painter->line_width=sc_width_setter_get_value(SC_WIDTH_SETTER(arrow->widthsetter));
 
 
     return TRUE;

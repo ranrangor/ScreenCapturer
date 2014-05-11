@@ -32,6 +32,9 @@ typedef struct _SCArrow{
     GdkRGBA color;
     gint line_width;
 
+    GtkWidget*colorchooser;
+    GtkWidget*widthsetter;
+
     gboolean pressed;
 
 
