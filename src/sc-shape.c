@@ -3,6 +3,8 @@
 #include"sc-operable.h"
 #include<math.h>
 #include<gtk/gtk.h>
+#include"menus/sc-colorchooser.h"
+#include"menus/sc-widthsetter.h"
 
 
 
@@ -42,47 +44,22 @@ static void sc_shape_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
 
 
 
-static void but2_clicked(GtkWidget*widget,SCOperable*operable)
-{
-
-    SCShape*shape=SC_SHAPE(operable);
-    shape->line_width=2;
-}
-
-
-static void but5_clicked(GtkWidget*widget,SCOperable*operable)
-{
-
-    SCShape*shape=SC_SHAPE(operable);
-    shape->line_width=5;
-
-}
-
-
-
-
 
 GtkWidget*shape_obtain_menu(SCOperable*operable)
 {
 
-    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
-    GtkWidget*but_2=gtk_button_new_with_label("2");
-    GtkWidget*but_5=gtk_button_new_with_label("5");
+    SCShape* shape=SC_SHAPE(operable);
 
-    g_signal_connect(G_OBJECT(but_2),"clicked",G_CALLBACK(but2_clicked),operable);
-    g_signal_connect(G_OBJECT(but_5),"clicked",G_CALLBACK(but5_clicked),operable);
+    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+    GtkWidget*color=sc_color_chooser_new();
+    GtkWidget*width=sc_width_setter_new(3);
 
-
-    gtk_box_pack_start(GTK_BOX(box),but_2,FALSE,FALSE,0);
-    gtk_box_pack_start(GTK_BOX(box),but_5,FALSE,FALSE,0);
-
-    gtk_widget_show(but_2);
-    gtk_widget_show(but_5);
-    gtk_widget_show(box);
+    shape->colorchooser=color;
+    shape->widthsetter=width;
+    g_object_ref(color);
+    g_object_ref(width);
 
     return box;
-
-
 
 }
 
@@ -139,6 +116,10 @@ static void sc_shape_init(SCShape*obj)
     obj->line_width=5; 
     obj->color.red=1;
     obj->color.alpha=1;
+
+
+    obj->rectangle.x=obj->rectangle.y=-10;
+    obj->rectangle.width=obj->rectangle.height=1;
 
 }
 
@@ -276,7 +257,9 @@ static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
 //    cairo_fill(cr);
 
     cairo_translate(cr,(double)shape->rectangle.x,(double)shape->rectangle.y);
-    cairo_scale(cr,(shape->rectangle.width),(shape->rectangle.height));
+
+    if((shape->rectangle.width!=0 && shape->rectangle.height!=0))
+        cairo_scale(cr,(shape->rectangle.width),(shape->rectangle.height));
 
     gdk_cairo_set_source_rgba(cr,&shape->color);
 
@@ -308,6 +291,7 @@ static gboolean sc_shape_press(GtkWidget*widget, GdkEventButton*e)
 
     SCShape*shape=SC_SHAPE(widget);
 
+    if(e->button==GDK_BUTTON_PRIMARY){
     shape->pressed=TRUE;
     GtkAllocation alloc;
 
@@ -319,8 +303,16 @@ static gboolean sc_shape_press(GtkWidget*widget, GdkEventButton*e)
     shape->rectangle.width=1;
     shape->rectangle.height=1;
 
-    return TRUE;
 
+//    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(shape->colorchooser));
+//    gdk_rgba_parse(colorspec,&shape->color);
+//
+//    painter->line_width=sc_width_setter_get_value(SC_WIDTH_SETTER(shape->widthsetter));
+
+        return TRUE;
+    }else{
+        return FALSE;
+    }
 
 }
 
@@ -331,6 +323,7 @@ static gboolean sc_shape_release(GtkWidget*widget, GdkEventButton*e)
 
     SCShape*shape=SC_SHAPE(widget);
 
+    if(e->button==GDK_BUTTON_PRIMARY){
     shape->pressed=FALSE;
 
     SCCanvas* canvas=sc_operable_get_canvas(SC_OPERABLE(widget));
@@ -338,8 +331,10 @@ static gboolean sc_shape_release(GtkWidget*widget, GdkEventButton*e)
     sc_canvas_step_done(canvas);
     sc_shape_reset(shape);
 
-    return TRUE;
-
+        return TRUE;
+    }else{
+        return FALSE;
+    }
 
 }
 
@@ -393,8 +388,8 @@ static void sc_shape_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
 void sc_shape_reset(SCShape*shape)
 {
 
-    shape->rectangle.x=0;
-    shape->rectangle.y=0;
+    shape->rectangle.x=-10;
+    shape->rectangle.y=-10;
     shape->rectangle.width=0;
     shape->rectangle.height=0;
 

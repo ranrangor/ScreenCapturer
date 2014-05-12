@@ -81,7 +81,7 @@ static GtkWidget* new_tview()
 
     tview=gtk_text_view_new();
     
-    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(tview),GTK_WRAP_CHAR);
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(tview),GTK_WRAP_NONE);
     GdkRGBA opacity={0,};
     gtk_widget_override_background_color(tview,0,&opacity);
 
@@ -114,6 +114,9 @@ static gboolean sc_text_press(GtkWidget*widget, GdkEventButton*e)
     GdkWindow*window=gtk_widget_get_window(widget);
 
     SCText*text=SC_TEXT(widget);
+
+    if(e->button==GDK_BUTTON_SECONDARY)
+        return FALSE;
 
     if(e->window==window){
         text->position.x=(int)e->x;

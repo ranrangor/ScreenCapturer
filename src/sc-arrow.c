@@ -115,7 +115,7 @@ static void sc_arrow_init(SCArrow*obj)
     obj->line_width=5; 
     obj->color.red=1;
     obj->color.alpha=1;
-
+    obj->x0=obj->x1=obj->y0=obj->y1=-10;
 }
 
 
@@ -302,17 +302,15 @@ static gboolean sc_arrow_press(GtkWidget*widget, GdkEventButton*e)
 
     SCArrow*arrow=SC_ARROW(widget);
 
-    arrow->pressed=TRUE;
-    GtkAllocation alloc;
+    if(e->button==GDK_BUTTON_PRIMARY){
+        arrow->pressed=TRUE;
+//    GtkAllocation alloc;
+//    gtk_widget_get_allocation(widget,&alloc);
 
-    gtk_widget_get_allocation(widget,&alloc);
-
-    arrow->x0=(int)e->x;
-    arrow->y0=(int)e->y;
-
-    arrow->x1=arrow->x0;
-    arrow->y1=arrow->y0;
-
+        arrow->x0=(int)e->x;
+        arrow->y0=(int)e->y;
+        arrow->x1=arrow->x0;
+        arrow->y1=arrow->y0;
 
 //    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(arrow->colorchooser));
 //    gdk_rgba_parse(colorspec,&painter->color);
@@ -320,7 +318,11 @@ static gboolean sc_arrow_press(GtkWidget*widget, GdkEventButton*e)
 //    painter->line_width=sc_width_setter_get_value(SC_WIDTH_SETTER(arrow->widthsetter));
 
 
-    return TRUE;
+        return TRUE;
+    }else{
+    
+        return FALSE;
+    }
 
 
 }
@@ -332,16 +334,19 @@ static gboolean sc_arrow_release(GtkWidget*widget, GdkEventButton*e)
 
     SCArrow*arrow=SC_ARROW(widget);
 
-    arrow->pressed=FALSE;
+    if(e->button==GDK_BUTTON_PRIMARY){
 
-    SCCanvas* canvas=sc_operable_get_canvas(SC_OPERABLE(widget));
+        arrow->pressed=FALSE;
 
-    sc_canvas_step_done(canvas);
-    sc_arrow_reset(arrow);
+        SCCanvas* canvas=sc_operable_get_canvas(SC_OPERABLE(widget));
 
+        sc_canvas_step_done(canvas);
+        sc_arrow_reset(arrow);
 
-    return TRUE;
-
+        return TRUE;
+    }else{
+        return FALSE;
+    }
 
 }
 
@@ -395,10 +400,10 @@ static void sc_arrow_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
 void sc_arrow_reset(SCArrow*arrow)
 {
 
-    arrow->x0=0;
-    arrow->y0=0;
-    arrow->x1=0;
-    arrow->y1=0;
+    arrow->x0=-10;
+    arrow->y0=-10;
+    arrow->x1=-10;
+    arrow->y1=-10;
 
 }
 

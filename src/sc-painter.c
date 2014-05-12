@@ -3,6 +3,8 @@
 #include"sc-operable.h"
 #include<math.h>
 #include<gtk/gtk.h>
+#include"menus/sc-colorchooser.h"
+#include"menus/sc-widthsetter.h"
 
 
 
@@ -59,47 +61,17 @@ void destroy_point(point*p)
 
 
 
-static void but2_clicked(GtkWidget*widget,SCOperable*operable)
-{
-
-    SCPainter*painter=SC_PAINTER(operable);
-    painter->line_width=2;
-}
-
-
-static void but5_clicked(GtkWidget*widget,SCOperable*operable)
-{
-
-    SCPainter*painter=SC_PAINTER(operable);
-    painter->line_width=5;
-
-}
-
-
-
-
 
 GtkWidget*painter_obtain_menu(SCOperable*operable)
 {
+    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+    GtkWidget*color=sc_color_chooser_new();
+    GtkWidget*width=sc_width_setter_new(3);
 
-    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
-    GtkWidget*but_2=gtk_button_new_with_label("2");
-    GtkWidget*but_5=gtk_button_new_with_label("5");
-
-    g_signal_connect(G_OBJECT(but_2),"clicked",G_CALLBACK(but2_clicked),operable);
-    g_signal_connect(G_OBJECT(but_5),"clicked",G_CALLBACK(but5_clicked),operable);
-
-
-    gtk_box_pack_start(GTK_BOX(box),but_2,FALSE,FALSE,0);
-    gtk_box_pack_start(GTK_BOX(box),but_5,FALSE,FALSE,0);
-
-    gtk_widget_show(but_2);
-    gtk_widget_show(but_5);
-    gtk_widget_show(box);
+    gtk_box_pack_start(GTK_BOX(box),width,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),color,FALSE,FALSE,0);
 
     return box;
-
-
 
 }
 
@@ -159,6 +131,8 @@ static void sc_painter_init(SCPainter*obj)
     obj->color.red=1;
     obj->color.alpha=1;
 
+    
+
 }
 
 
@@ -199,8 +173,9 @@ static void sc_painter_realize(GtkWidget*widget)
         GDK_BUTTON_PRESS_MASK|
         GDK_BUTTON_RELEASE_MASK;
 
+    attributes.cursor=gdk_cursor_new(GDK_PENCIL);
 
-    attributes_mask=GDK_WA_X|GDK_WA_Y;
+    attributes_mask=GDK_WA_X|GDK_WA_Y|GDK_WA_CURSOR;
 
 
 
@@ -209,6 +184,8 @@ static void sc_painter_realize(GtkWidget*widget)
     gtk_widget_register_window(widget,event_window);
 
     painter->event_window=event_window;
+
+    g_object_unref(attributes.cursor);
 
 
 }
@@ -282,13 +259,11 @@ static gboolean sc_painter_draw(GtkWidget*widget, cairo_t*cr)
 
     SCPainter*painter=SC_PAINTER(widget);
 
-
+    
     gdk_cairo_set_source_rgba(cr,&painter->color);
-
     cairo_set_line_width(cr,painter->line_width);
     
     cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND);
-
     
     GList*points=painter->points;
 
@@ -324,15 +299,22 @@ static gboolean sc_painter_press(GtkWidget*widget, GdkEventButton*e)
 
     SCPainter*painter=SC_PAINTER(widget);
 
+    //propagate event to parent window
+    if(e->button==GDK_BUTTON_SECONDARY)
+        return FALSE;
+
     painter->pressed=TRUE;
+
+//    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(painter->colorchooser));
+//    gdk_rgba_parse(colorspec,&painter->color);
+
+//    painter->line_width=sc_width_setter_get_value(SC_WIDTH_SETTER(painter->widthsetter));
 
 /*
     g_list_free_full(painter->points,(GDestroyNotify)destroy_point);
     painter->points=NULL;
 */
 
-//    GtkAllocation alloc;
-//    gtk_widget_get_allocation(widget,&alloc);
 
         point*newpoint=new_point(e->x,e->y);
         painter->points=g_list_append(painter->points,newpoint);
@@ -351,8 +333,11 @@ static gboolean sc_painter_release(GtkWidget*widget, GdkEventButton*e)
 
     SCPainter*painter=SC_PAINTER(widget);
 
-    painter->pressed=FALSE;
+    //propagate event to parent window
+    if(e->button==GDK_BUTTON_SECONDARY)
+        return FALSE;
 
+    painter->pressed=FALSE;
 
     SCCanvas* canvas=sc_operable_get_canvas(widget);
 

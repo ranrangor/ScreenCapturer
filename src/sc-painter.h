@@ -44,6 +44,10 @@ typedef struct _SCPainter{
     int line_width;
     GdkRGBA color;
 
+    GtkWidget*colorchooser;
+    GtkWidget*widthsetter;
+
+
     gboolean pressed;
 
 
