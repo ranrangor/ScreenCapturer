@@ -128,7 +128,7 @@ static gboolean rect_selected(SCWindow*scwin)
 static void get_rect_under_pointer(SCWindow*scwin,int x,int y)
 {
 
-    g_message("Get Rectangle under pointer");
+//    g_message("Get Rectangle under pointer");
     SCWindowPriv*priv=SC_WINDOW(scwin)->priv;
 
     GList*rectlst=priv->rects;
@@ -298,22 +298,20 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
         priv->button_down=FALSE;
         priv->rect_selected=TRUE;
 //
-
+//Selected rectangle && then add SCCanvas on SCWindow.
         priv->canvas=sc_canvas_new(priv->current_rect.x,
                 priv->current_rect.y,
                 priv->current_rect.width,
                 priv->current_rect.height);
        
 
-
-
     sc_canvas_register_operables(SC_CANVAS(priv->canvas),widget);
-
 
     gtk_container_add(GTK_CONTAINER(widget),priv->canvas);
 
-        gtk_widget_show_all(priv->canvas);
-
+    gtk_widget_show_all(priv->canvas);
+    //first snapshot
+    sc_canvas_step_done(SC_CANVAS(priv->canvas));
 
     }
 
@@ -322,14 +320,14 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
         if(priv->rect_selected && !point_in_rect(&priv->current_rect,(int)e->x,(int)e->y)){
             priv->rect_selected=FALSE;
 
-//PPPPPPPPPPPPPPPPPPPPPP
+//Remove SCCanvas from SCWindow.
             gtk_container_remove(GTK_CONTAINER(widget),priv->canvas);
-            g_message("Canvas Removed!!!!!!!!!!!!!!!");
+            g_message("SCCanvas Removed! To ReSelect Region.");
         
         }else
         if(!priv->rect_selected){
            
-           g_message("EXIT....");
+           g_message("To EXIT (Right Clicked)!");
            GtkApplication*app=gtk_window_get_application(GTK_WINDOW(widget));
            g_application_quit(G_APPLICATION(app));
         }
