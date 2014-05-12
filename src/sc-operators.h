@@ -11,10 +11,11 @@
 
 
 
-static void shape_clicked(GtkWidget*widget,gpointer d);
-static void arrow_clicked(GtkWidget*widget,gpointer d);
-static void painter_clicked(GtkWidget*widget,gpointer d);
 
+void operator_arrow_act(GtkWidget*widget,gpointer d);
+void operator_shape_act(GtkWidget*widget,gpointer d);
+void operator_painter_act(GtkWidget*widget,gpointer d);
+void operator_text_act(GtkWidget*widget,gpointer d);
 
 void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win);
 

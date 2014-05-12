@@ -10,53 +10,53 @@
 
 
 
-void operable_shape_clicked(GtkWidget*widget,gpointer d)
+void operator_shape_act(GtkWidget*widget,gpointer d)
 {
 
 SCCanvas*canvas=SC_CANVAS(d);
 
     GtkWidget*shape=sc_shape_new(canvas);
 
-    sc_canvas_add_op(canvas,shape);
+    sc_canvas_add_operator(canvas,shape);
     gtk_widget_show_all(canvas);
 
 }
 
-void operable_arrow_clicked(GtkWidget*widget,gpointer d)
+void operator_arrow_act(GtkWidget*widget,gpointer d)
 {
 
 SCCanvas*canvas=SC_CANVAS(d);
 
     GtkWidget*arrow=sc_arrow_new(canvas);
 
-    sc_canvas_add_op(canvas,arrow);
+    sc_canvas_add_operator(canvas,arrow);
     gtk_widget_show_all(canvas);
 
 }
 
 
-void operable_painter_clicked(GtkWidget*widget,gpointer d)
+void operator_painter_act(GtkWidget*widget,gpointer d)
 {
 
 SCCanvas*canvas=SC_CANVAS(d);
 
     GtkWidget*painter=sc_painter_new(canvas);
 
-    sc_canvas_add_op(canvas,painter);
+    sc_canvas_add_operator(canvas,painter);
     gtk_widget_show_all(canvas);
 
 }
 
 
 
-void operable_text_clicked(GtkWidget*widget,gpointer d)
+void operator_text_act(GtkWidget*widget,gpointer d)
 {
 
 SCCanvas*canvas=SC_CANVAS(d);
 
     GtkWidget*text=sc_text_new(canvas);
 
-    sc_canvas_add_op(canvas,text);
+    sc_canvas_add_operator(canvas,text);
     gtk_widget_show_all(canvas);
 
 }
@@ -72,7 +72,9 @@ void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win)
     sc_canvas_set_appwin(canvas,win);
 
     //if(!priv->menu){
-    sc_canvas_add_me(canvas,sc_canvas_get_menu(canvas));
+    g_message("ADD menu...");
+    sc_canvas_add_menu(canvas,sc_canvas_get_menu(canvas));
+    g_message("---ADD menu...");
     
 //    }
 
@@ -80,19 +82,19 @@ void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win)
 
     GtkWidget*shape=gtk_button_new_with_label("shape");
     gtk_box_pack_end(GTK_BOX(operable_box),shape,FALSE,FALSE,0);
-    g_signal_connect(G_OBJECT(shape),"clicked",G_CALLBACK(operable_shape_clicked),canvas);//&info);
+    g_signal_connect(G_OBJECT(shape),"clicked",G_CALLBACK(operator_shape_act),canvas);//&info);
 
     GtkWidget*arrow=gtk_button_new_with_label("arrow");
     gtk_box_pack_end(GTK_BOX(operable_box),arrow,FALSE,FALSE,0);
-    g_signal_connect(G_OBJECT(arrow),"clicked",G_CALLBACK(operable_arrow_clicked),canvas);//&info);
+    g_signal_connect(G_OBJECT(arrow),"clicked",G_CALLBACK(operator_arrow_act),canvas);//&info);
 
     GtkWidget*painter=gtk_button_new_with_label("painter");
     gtk_box_pack_end(GTK_BOX(operable_box),painter,FALSE,FALSE,0);
-    g_signal_connect(G_OBJECT(painter),"clicked",G_CALLBACK(operable_painter_clicked),canvas);//&info);
+    g_signal_connect(G_OBJECT(painter),"clicked",G_CALLBACK(operator_painter_act),canvas);//&info);
 
     GtkWidget*text=gtk_button_new_with_label("text");
     gtk_box_pack_end(GTK_BOX(operable_box),text,FALSE,FALSE,0);
-    g_signal_connect(G_OBJECT(text),"clicked",G_CALLBACK(operable_text_clicked),canvas);//&info);
+    g_signal_connect(G_OBJECT(text),"clicked",G_CALLBACK(operator_text_act),canvas);//&info);
 
 
 
