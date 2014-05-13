@@ -5,6 +5,7 @@
 
 struct _SCApp {
     GtkApplication parent;
+    guint win_id;
 };
 
 struct _SCAppClass {
@@ -25,8 +26,14 @@ static void exit_action_cb(GSimpleAction*simple,GVariant* parameter, gpointer us
     g_message("win.exit Invoked");
 
     GApplication*application=G_APPLICATION(user_data);
- 
-    g_application_quit (application);
+    SCApp*scapp=SC_APP(application);
+  
+    GtkWindow*appwin=gtk_application_get_window_by_id(GTK_APPLICATION(application),scapp->win_id);
+
+    if(sc_window_is_selected(SC_WINDOW(appwin)))
+        sc_window_reselect(SC_WINDOW(appwin));
+    else
+        g_application_quit (application);
 
 }
 
@@ -37,6 +44,9 @@ static void sc_app_activate(GApplication * app)
     SCWindow *scwin;
 
     scwin = sc_window_new(SC_APP(app));
+
+    SCApp*scapp=SC_APP(app);
+    scapp->win_id=gtk_application_window_get_id(GTK_APPLICATION_WINDOW(scwin));
 
 
     GSimpleAction*exit_action=g_simple_action_new("exit",NULL);
