@@ -50,10 +50,12 @@ struct _SCCanvasPriv{
     GtkWidget*menu;//GtkBox
     GdkWindow*menuwindow;
     GdkPoint menu_position;
-    int drag_pos[XY];
+    int menu_dragpos[XY];
 
     GtkWidget*toolmenu;//GtkBox
     GdkWindow*toolmenuwindow;
+    GdkPoint toolmenu_position;
+    int tolmenu_dragpos[XY];
 
     GtkWidget*operable_box;
     guint show_menu:1;
@@ -356,13 +358,25 @@ static void sc_canvas_realize(GtkWidget*widget)
     priv->menuwindow=gdk_window_new(parent_window,&attributes,attributes_mask);
     gtk_widget_register_window(widget,priv->menuwindow);
 
-    GtkStyleContext* sc=gtk_widget_get_style_context(widget);
+//    GtkStyleContext* sc=gtk_widget_get_style_context(widget);
 //    gtk_style_context_set_background(sc,priv->menuwindow);
 //    gdk_window_set_opacity(priv->menuwindow,0.7);
 
     if(priv->menu){
         gtk_widget_set_parent_window(priv->menu,priv->menuwindow);
 //        gtk_widget_set_parent(priv->menu,widget);
+    }
+
+
+
+    attributes_mask=GDK_WA_X|GDK_WA_Y|GDK_WA_VISUAL;
+
+    priv->toolmenuwindow=gdk_window_new(parent_window,&attributes,attributes_mask);
+    gtk_widget_register_window(widget,priv->toolmenuwindow);
+
+
+    if(priv->toolmenu){
+        gtk_widget_set_parent_window(priv->toolmenu,priv->toolmenuwindow);
     }
 
 
@@ -581,8 +595,8 @@ static gboolean sc_canvas_press(GtkWidget* widget, GdkEventButton*e)
     
         priv->menu_drag=TRUE;
 
-        priv->drag_pos[X]=(int)e->x;
-        priv->drag_pos[Y]=(int)e->y;
+        priv->menu_dragpos[X]=(int)e->x;
+        priv->menu_dragpos[Y]=(int)e->y;
 
         return TRUE;
     }
@@ -615,11 +629,11 @@ static gboolean sc_canvas_motion(GtkWidget* widget, GdkEventMotion*e)
 
     if(priv->menu_drag ){
 //        g_print("==========\n");
-//        g_print("drag_pos[X]=%d, drag-pos[Y]=%d\ne->x=%d, e->y=%d\n",
-//                priv->drag_pos[X],priv->drag_pos[Y],(int)e->x,(int)e->y);
+//        g_print("menu_dragpos[X]=%d, drag-pos[Y]=%d\ne->x=%d, e->y=%d\n",
+//                priv->menu_dragpos[X],priv->menu_dragpos[Y],(int)e->x,(int)e->y);
 //        g_print("----------\n");
-        biasx=(int)(e->x)-priv->drag_pos[X];//-priv->menu_position.x;
-        biasy=(int)(e->y)-priv->drag_pos[Y];//-priv->menu_position.y;
+        biasx=(int)(e->x)-priv->menu_dragpos[X];//-priv->menu_position.x;
+        biasy=(int)(e->y)-priv->menu_dragpos[Y];//-priv->menu_position.y;
         gdk_window_get_position(priv->menuwindow,&wx,&wy);
 
         priv->menu_position.x=wx+biasx;
@@ -733,46 +747,24 @@ void sc_canvas_reset(SCCanvas*canvas,GtkWidget*w){
 */
 
 
-void sc_canvas_add_operator(SCCanvas*canvas,GtkWidget* op)
+void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op)
 {
 
     SCCanvasPriv*priv=canvas->priv;
 
-    g_message("Before set child priv->operator:%x..",priv->operator);
-
-sc_canvas_set_child(canvas,&priv->operator,priv->window,op);
-/*
-    if(priv->operator)
-        gtk_container_remove(GTK_CONTAINER(canvas),priv->operator);
-
-
-    gtk_widget_set_parent_window(op,priv->window);
-    gtk_container_add(GTK_CONTAINER(canvas),op);
-    priv->operator=op;
-*/
+    sc_canvas_set_child(canvas,&priv->operator,priv->window,op);
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
 }
 
-void sc_canvas_add_menu(SCCanvas*canvas,GtkWidget* me)
+void sc_canvas_set_menu(SCCanvas*canvas,GtkWidget* me)
 {
     SCCanvasPriv*priv=canvas->priv;
 
-    priv->menu=NULL;
-    g_message("Before set child priv->menu:%x..",priv->menu);
-sc_canvas_set_child(canvas,&priv->menu,priv->menuwindow,me);
-/*
-    if(priv->menu)
-        gtk_container_remove(GTK_CONTAINER(canvas),priv->menu);
-
-
-    gtk_widget_set_parent_window(me,priv->menuwindow);
-    gtk_container_add(GTK_CONTAINER(canvas),me);
-    priv->menu=me;
-*/
+//    priv->menu=NULL;
+//    g_message("Before set child priv->menu:%x..",priv->menu);
+    sc_canvas_set_child(canvas,&priv->menu,priv->menuwindow,me);
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
-
-
 
 }
 
@@ -875,7 +867,6 @@ void canvas_reselect_act(GtkWidget* widget, gpointer d)
 
 
 GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op)
-//GtkWidget*sc_canvas_add_menu(SCCanvas*canvas)
 {
 
     SCCanvasPriv*priv=SC_CANVAS(canvas)->priv;

@@ -17,8 +17,8 @@ SCCanvas*canvas=SC_CANVAS(d);
 
     GtkWidget*shape=sc_shape_new(canvas);
 
-    sc_canvas_add_operator(canvas,shape);
-    gtk_widget_show_all(canvas);
+    sc_canvas_set_operator(canvas,shape);
+    gtk_widget_show_all(GTK_WIDGET(canvas));
 
 }
 
@@ -29,8 +29,8 @@ SCCanvas*canvas=SC_CANVAS(d);
 
     GtkWidget*arrow=sc_arrow_new(canvas);
 
-    sc_canvas_add_operator(canvas,arrow);
-    gtk_widget_show_all(canvas);
+    sc_canvas_set_operator(canvas,arrow);
+    gtk_widget_show_all(GTK_WIDGET(canvas));
 
 }
 
@@ -42,8 +42,8 @@ SCCanvas*canvas=SC_CANVAS(d);
 
     GtkWidget*painter=sc_painter_new(canvas);
 
-    sc_canvas_add_operator(canvas,painter);
-    gtk_widget_show_all(canvas);
+    sc_canvas_set_operator(canvas,painter);
+    gtk_widget_show_all(GTK_WIDGET(canvas));
 
 }
 
@@ -56,8 +56,8 @@ SCCanvas*canvas=SC_CANVAS(d);
 
     GtkWidget*text=sc_text_new(canvas);
 
-    sc_canvas_add_operator(canvas,text);
-    gtk_widget_show_all(canvas);
+    sc_canvas_set_operator(canvas,text);
+    gtk_widget_show_all(GTK_WIDGET(canvas));
 
 }
 
@@ -71,12 +71,8 @@ void sc_canvas_register_operables(SCCanvas*canvas,GtkWidget*win)
 
     sc_canvas_set_appwin(canvas,win);
 
-    //if(!priv->menu){
-    g_message("ADD menu...");
-    sc_canvas_add_menu(canvas,sc_canvas_get_menu(canvas));
-    g_message("---ADD menu...");
+    sc_canvas_set_menu(canvas,sc_canvas_get_menu(canvas));
     
-//    }
 
     GtkWidget*operable_box=sc_canvas_get_operable_box(canvas);
 

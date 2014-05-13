@@ -73,7 +73,7 @@ GtkWidget* sc_canvas_get_popup_menu(SCCanvas*canvas);
 //void sc_canvas_show_menu(SCCanvas* canvas);
 //void sc_canvas_hide_menu(SCCanvas* canvas);
 
-GtkWidget* sc_canvas_add_operater(SCCanvas*canvas, GtkWidget*operable, int pos);
+GtkWidget* sc_canvas_set_operater(SCCanvas*canvas, GtkWidget*operable, int pos);
 
 //void sc_canvas_take_shot(SCCanvas*canvas);
 void sc_canvas_step_done(SCCanvas* canvas);
@@ -98,8 +98,8 @@ void canvas_xmenu_act(GtkWidget* widget, gpointer d);
 //void sc_canvas_register_operables(SCCanvas*canvas);
 //void sc_canvas_reset(SCCanvas*canvas,GtkWidget*w);
 
-void sc_canvas_add_menu(SCCanvas*canvas,GtkWidget* me);
-void sc_canvas_add_operator(SCCanvas*canvas,GtkWidget* op);
+void sc_canvas_set_menu(SCCanvas*canvas,GtkWidget* me);
+void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op);
 
 GtkWidget*sc_canvas_get_operable_box(SCCanvas*canvas);
 
