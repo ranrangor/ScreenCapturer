@@ -238,7 +238,7 @@ static void sc_color_chooser_get_preferred_height(GtkWidget* widget,gint* min, g
 
     priv->height=priv->border*3+priv->side*2;
 
-    g_message("height::%d",priv->height);
+//    g_message("height::%d",priv->height);
     if(min)
         *min=priv->height;
     if(nat)
@@ -251,7 +251,7 @@ static void sc_color_chooser_get_preferred_height(GtkWidget* widget,gint* min, g
 static void sc_color_chooser_realize(GtkWidget*widget)
 {
 
-    g_message("Realize...");
+//    g_message("Realize...");
 
     GtkAllocation allocation;
     GdkWindow*parent_window;
@@ -432,41 +432,39 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
     GtkAllocation alloc;
     gtk_widget_get_allocation(widget,&alloc);
 
-    cairo_set_source_rgba(cr,1,0,0,1);
+//    cairo_set_source_rgba(cr,1,0,0,1);
+
+    GtkStyleContext*sc=gtk_widget_get_style_context(widget);
+    gtk_style_context_add_class(sc,"button");
+
+    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
 
     int side=priv->side;//(priv->height-priv->border*3)/2;
 
     int i;
     if(gtk_widget_get_realized(widget)){
-    for(i=0;i<priv->n_colors;i++){
-    cairo_save(cr);
-    gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
-
-
-    render_border(cr,0,0,side,side);
+        for(i=0;i<priv->n_colors;i++){
+            cairo_save(cr);
+            gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
     
-
-    gdk_rgba_parse(&c,priv->colors[i]);
-
-    gdk_cairo_set_source_rgba(cr,&c);
-
-    if(i==priv->current_color){
-        cairo_rectangle(cr,0.5,0.5,side,side);
-    }else{
-        cairo_rectangle(cr,0,0,side,side);
-    }
-    cairo_fill(cr);
+            render_border(cr,0,0,side,side);
     
-    cairo_restore(cr);
+            gdk_rgba_parse(&c,priv->colors[i]);
+            gdk_cairo_set_source_rgba(cr,&c);
     
-    }
-
+            if(i==priv->current_color){
+                cairo_rectangle(cr,0.5,0.5,side,side);
+            }else{
+                cairo_rectangle(cr,0,0,side,side);
+            }
+            cairo_fill(cr);
+            cairo_restore(cr);
+        }
     }
 
     int prev_side=priv->height-2*priv->border;
-
-    int prev_x=alloc.x+priv->border;
-    int prev_y=alloc.y+priv->border;
+    int prev_x=priv->border;
+    int prev_y=priv->border;
 
     gdk_rgba_parse(&c,priv->colors[priv->choosed_color]);
     gdk_cairo_set_source_rgba(cr,&c);
@@ -515,6 +513,7 @@ static gboolean sc_color_chooser_motion(GtkWidget*widget,GdkEventMotion*e)
 
     gtk_widget_queue_draw(widget);
 
+    return TRUE;
 
 }
 
@@ -530,9 +529,9 @@ static gboolean sc_color_chooser_press(GtkWidget*widget,GdkEventButton*e)
         priv->choosed_color=nn;
 
 
-
     gtk_widget_queue_draw(widget);
 
+    return TRUE;
 
 }
 
