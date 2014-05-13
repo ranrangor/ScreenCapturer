@@ -811,6 +811,7 @@ void canvas_save_cb(GtkWidget*widget,gpointer d)
     
     SCCanvas* canvas=SC_CANVAS(d);
 
+    sc_canvas_step_done(canvas);
     if(sc_canvas_save(canvas))
         sc_canvas_exit(canvas);
 
@@ -825,7 +826,7 @@ void canvas_exit_cb(GtkWidget*widget,gpointer d)
 
 }
 
-
+/*
 void canvas_hidemenu_act(GtkWidget* widget, gpointer d)
 {
 
@@ -842,9 +843,18 @@ void canvas_showmenu_act(GtkWidget* widget, gpointer d)
     sc_canvas_show_menu(canvas);
 
 }
+*/
 
 void canvas_xmenu_act(GtkWidget* widget, gpointer d)
 {
+
+    SCCanvas* canvas=SC_CANVAS(d);
+    SCCanvasPriv* priv=canvas->priv;
+    if(priv->show_menu){
+        sc_canvas_hide_menu(canvas);
+    }else{
+        sc_canvas_show_menu(canvas);
+    }
     return;
 
 }
@@ -926,13 +936,22 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
 
 GtkWidget*sc_canvas_get_right_menu(SCCanvas*canvas)
 {
+    SCCanvasPriv* priv=canvas->priv;
+
 
     GtkWidget*menu=gtk_menu_new();
     GtkWidget*item_shape=gtk_menu_item_new_with_label("shape");
     GtkWidget*item_arrow=gtk_menu_item_new_with_label("arrow");
     GtkWidget*item_painter=gtk_menu_item_new_with_label("painter");
     GtkWidget*item_text=gtk_menu_item_new_with_label("text");
-    GtkWidget*item_xmenu=gtk_menu_item_new_with_label("hide menu");
+    
+    char*xmenu_label;
+    if(priv->show_menu)
+        xmenu_label="hide menu";
+    else
+        xmenu_label="show menu";
+
+    GtkWidget*item_xmenu=gtk_menu_item_new_with_label(xmenu_label);
 
     GtkWidget*item_reselect=gtk_menu_item_new_with_label("reselect");
     GtkWidget*item_sep=gtk_separator_menu_item_new();
@@ -1241,7 +1260,8 @@ void sc_canvas_hide_menu(SCCanvas* canvas)
 
     SCCanvasPriv*priv=canvas->priv;
     priv->show_menu=FALSE;
-
+    gdk_window_hide(priv->menuwindow);
+    gtk_widget_queue_resize(GTK_WIDGET(canvas));
 }
 
 
@@ -1250,6 +1270,8 @@ void sc_canvas_show_menu(SCCanvas* canvas)
 
     SCCanvasPriv*priv=canvas->priv;
     priv->show_menu=TRUE;
+    gdk_window_show(priv->menuwindow);
+    gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
 }
 

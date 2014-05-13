@@ -310,20 +310,17 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
     gtk_container_add(GTK_CONTAINER(widget),priv->canvas);
 
     gtk_widget_show_all(priv->canvas);
-    //first snapshot
-    sc_canvas_step_done(SC_CANVAS(priv->canvas));
 
     }
 
     if(e->type==GDK_BUTTON_RELEASE && e->button==GDK_BUTTON_SECONDARY){
     
         if(priv->rect_selected && !point_in_rect(&priv->current_rect,(int)e->x,(int)e->y)){
-            priv->rect_selected=FALSE;
-
+            sc_window_reselect(SC_WINDOW(widget));
+//            priv->rect_selected=FALSE;
 //Remove SCCanvas from SCWindow.
-            gtk_container_remove(GTK_CONTAINER(widget),priv->canvas);
-            g_message("SCCanvas Removed! To ReSelect Region.");
-        
+//            gtk_container_remove(GTK_CONTAINER(widget),priv->canvas);
+//            g_message("SCCanvas Removed! To ReSelect Region.");
         }else
         if(!priv->rect_selected){
            
@@ -538,4 +535,22 @@ GdkPixbuf*sc_window_get_pixbuf(SCWindow*win)
     
 }
 
+
+void sc_window_reselect(SCWindow*win)
+{
+
+    SCWindowPriv*priv = win->priv;
+    priv->rect_selected=FALSE;
+//Remove SCCanvas from SCWindow.
+    gtk_container_remove(GTK_CONTAINER(win),priv->canvas);
+
+}
+
+
+void sc_window_exit(SCWindow*win)
+{
+    SCWindowPriv*priv = win->priv;
+    GtkApplication*app=gtk_window_get_application(GTK_WINDOW(win));
+    g_application_quit(G_APPLICATION(app));
+}
 

@@ -54,6 +54,8 @@ GType sc_window_get_type(void);
 SCWindow* sc_window_new(SCApp*app);
 GdkPixbuf*sc_window_get_pixbuf(SCWindow*win);
 
+void sc_window_exit(SCWindow*win);
+void sc_window_reselect(SCWindow*win);
 //void sc_window_open(SCWindow* win, GFile* file);
 
 
