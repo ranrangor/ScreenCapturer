@@ -22,7 +22,6 @@
 typedef struct _scOperable SCOperable;
 
 
-//typedef struct _scOperableIface SCOperableInterface;
 
 typedef struct _scOperableIface{
 
@@ -55,11 +54,7 @@ GType sc_operable_get_type(void);
 
 
 
-void sc_operable_ready(SCOperable* operable);
-void sc_operable_done(SCOperable* operable);
-void sc_operable_reset(SCOperable* operable);
 GtkWidget* sc_operable_obtain_toolmenu(SCOperable* operable);
-GtkWidget* sc_operable_get_toolbutton(SCOperable* operable);
 
 void sc_operable_set_canvas(SCOperable*operable,SCCanvas*canvas);
 SCCanvas* sc_operable_get_canvas(SCOperable*operable);

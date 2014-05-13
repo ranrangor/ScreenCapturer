@@ -26,44 +26,6 @@ sc_operable_default_init(SCOperableInterface*iface)
 
 
 
-/*
-void sc_operable_ready(SCOperable* operable)
-{
-
-    g_return_if_fail(SC_IS_OPERABLE(operable));
-
-    SC_OPERABLE_GET_INTERFACE(operable)->ready(operable);
-
-
-}
-
-
-
-
-void sc_operable_done(SCOperable* operable)
-{
-    g_return_if_fail(SC_IS_OPERABLE(operable));
-
-    SC_OPERABLE_GET_INTERFACE(operable)->done(operable);
-
-
-}
-
-
-void sc_operable_reset(SCOperable* operable)
-{
-    g_return_if_fail(SC_IS_OPERABLE(operable));
-
-    SC_OPERABLE_GET_INTERFACE(operable)->reset(operable);
-
-
-}
-
-
-*/
-
-
-
 GtkWidget* sc_operable_obtain_toolmenu(SCOperable*operable)
 {
     g_return_val_if_fail(SC_IS_OPERABLE(operable),NULL);
@@ -73,20 +35,8 @@ GtkWidget* sc_operable_obtain_toolmenu(SCOperable*operable)
 }
 
 
-GtkWidget* sc_operable_get_toolbutton(SCOperable* operable)
-{
-    g_return_val_if_fail(SC_IS_OPERABLE(operable),NULL);
-
-    return SC_OPERABLE_GET_INTERFACE(operable)->get_toolbutton(operable);
-
-
-
-}
-
-
 void sc_operable_set_canvas(SCOperable*operable,SCCanvas*canvas)
 {
-
 
     SC_OPERABLE_GET_INTERFACE(operable)->canvas=canvas;
 
@@ -95,7 +45,6 @@ void sc_operable_set_canvas(SCOperable*operable,SCCanvas*canvas)
 
 SCCanvas* sc_operable_get_canvas(SCOperable*operable)
 {
-
 
     return SC_OPERABLE_GET_INTERFACE(operable)->canvas;
 
