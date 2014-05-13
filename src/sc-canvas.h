@@ -98,6 +98,7 @@ void canvas_xmenu_act(GtkWidget* widget, gpointer d);
 //void sc_canvas_register_operables(SCCanvas*canvas);
 //void sc_canvas_reset(SCCanvas*canvas,GtkWidget*w);
 
+void sc_canvas_set_toolmenu(SCCanvas*canvas);
 void sc_canvas_set_menu(SCCanvas*canvas,GtkWidget* me);
 void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op);
 
