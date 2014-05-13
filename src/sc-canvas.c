@@ -1,5 +1,6 @@
 #include<gtk/gtk.h>
 #include"sc-canvas.h"
+#include"sc-window.h"
 #include"sc-operable.h"
 #include"sc-operators.h"
 #include"sc-arrow.h"
@@ -175,7 +176,7 @@ static void sc_canvas_init(SCCanvas* scobj)
     priv->menu=NULL;
     priv->show_menu=TRUE;
 
-//    priv->popup_menu=sc_canvas_get_right_menu(scobj);
+//    priv->popup_menu=sc_canvas_get_popup_menu(scobj);
 
 
 
@@ -866,7 +867,9 @@ void canvas_reselect_act(GtkWidget* widget, gpointer d)
 {
 
     SCCanvas* canvas=SC_CANVAS(d);
-//    sc_canvas_reselect(canvas);
+    SCCanvasPriv* priv=canvas->priv;
+
+    sc_window_reselect(SC_WINDOW(priv->appwin));
 
 }
 
@@ -884,7 +887,6 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
 //    priv->show_menu=TRUE;
 
     GtkWidget*menu=gtk_grid_new();
-//        gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
 
     //Add MENU ITEMS 
     priv->operable_box= gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
@@ -934,12 +936,14 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
 
 
 
-GtkWidget*sc_canvas_get_right_menu(SCCanvas*canvas)
+GtkWidget*sc_canvas_get_popup_menu(SCCanvas*canvas)
 {
     SCCanvasPriv* priv=canvas->priv;
 
 
     GtkWidget*menu=gtk_menu_new();
+    //gtk_widget_set_opacity(menu,0.2);
+
     GtkWidget*item_shape=gtk_menu_item_new_with_label("shape");
     GtkWidget*item_arrow=gtk_menu_item_new_with_label("arrow");
     GtkWidget*item_painter=gtk_menu_item_new_with_label("painter");
@@ -995,6 +999,12 @@ GtkWidget*sc_canvas_get_right_menu(SCCanvas*canvas)
 
 
 
+
+
+
+
+
+
 void sc_canvas_do_popup_menu(GtkWidget*widget, GdkEventButton* event)
 {
 
@@ -1003,9 +1013,7 @@ void sc_canvas_do_popup_menu(GtkWidget*widget, GdkEventButton* event)
 
     int button,event_time;
 
-    g_message("PopupMenu SCCanvas::%x...",canvas);
-
-    GtkWidget*menu=sc_canvas_get_right_menu(canvas);
+    GtkWidget*menu=sc_canvas_get_popup_menu(canvas);
     gtk_widget_show_all(menu);
 
 //    g_signal_connect(menu,"deactivate",G_CALLBACK(gtk_widget_destroy),NULL);
@@ -1021,9 +1029,7 @@ void sc_canvas_do_popup_menu(GtkWidget*widget, GdkEventButton* event)
     
     }
 
-
     gtk_menu_attach_to_widget(GTK_MENU(menu),widget,NULL);
-
     gtk_menu_popup(GTK_MENU(menu),NULL,NULL,NULL,NULL,button,event_time);
 
 }
