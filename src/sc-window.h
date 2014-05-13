@@ -56,6 +56,8 @@ GdkPixbuf*sc_window_get_pixbuf(SCWindow*win);
 
 void sc_window_exit(SCWindow*win);
 void sc_window_reselect(SCWindow*win);
+gboolean sc_window_is_selected(SCWindow*win);
+
 //void sc_window_open(SCWindow* win, GFile* file);
 
 
