@@ -35,7 +35,7 @@ typedef struct _scOperableIface{
 
 
     /* virtual functions */
-    GtkWidget* (*obtain_menu) (SCOperable* operable);
+    GtkWidget* (*obtain_toolmenu) (SCOperable* operable);
     GtkWidget* (*get_toolbutton) (SCOperable* operable);
 
 
@@ -58,7 +58,7 @@ GType sc_operable_get_type(void);
 void sc_operable_ready(SCOperable* operable);
 void sc_operable_done(SCOperable* operable);
 void sc_operable_reset(SCOperable* operable);
-GtkWidget* sc_operable_obtain_menu(SCOperable* operable);
+GtkWidget* sc_operable_obtain_toolmenu(SCOperable* operable);
 GtkWidget* sc_operable_get_toolbutton(SCOperable* operable);
 
 void sc_operable_set_canvas(SCOperable*operable,SCCanvas*canvas);

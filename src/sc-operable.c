@@ -64,11 +64,11 @@ void sc_operable_reset(SCOperable* operable)
 
 
 
-GtkWidget* sc_operable_obtain_menu(SCOperable*operable)
+GtkWidget* sc_operable_obtain_toolmenu(SCOperable*operable)
 {
     g_return_val_if_fail(SC_IS_OPERABLE(operable),NULL);
 
-    return SC_OPERABLE_GET_INTERFACE(operable)->obtain_menu(operable);
+    return SC_OPERABLE_GET_INTERFACE(operable)->obtain_toolmenu(operable);
 
 }
 
