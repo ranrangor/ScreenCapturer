@@ -19,7 +19,6 @@
 
 
 
-
 typedef struct _SCColorChooserPriv SCColorChooserPriv;
 
 typedef struct _SCColorChooser{

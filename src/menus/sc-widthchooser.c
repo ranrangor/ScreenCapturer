@@ -121,7 +121,8 @@ static void sc_width_chooser_init(SCWidthChooser*obj)
     priv->n_widths=N_WIDTH;
     priv->side=28;
     priv->border=4;
-    priv->choosed_width=2;
+    priv->current_width=-1;
+//    priv->choosed_width=-1;
 
     init_widths(obj);
 
@@ -344,35 +345,50 @@ static gboolean sc_width_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
         for(i=0;i<priv->n_widths;i++){
 
+             if(priv->choosed_width==i){
+                g_print("Choosed:.%d\t",i);
             cairo_save(cr);
             gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
-//            gtk_render_frame(sc,cr,0,0,side,side);
+            gtk_render_frame(sc,cr,0,0,side,side);
 
-            if(priv->choosed_width==i){
-                g_print("Choosed:.%d",i);
+//            gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_ACTIVE,TRUE);
+            gtk_render_background(sc,cr,0,0,side,side);
+            cairo_restore(cr);
                 cairo_set_source_rgba(cr,0.0,0.8,0,1);
-    
-//                gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_ACTIVE,TRUE);
             
-            }else if(priv->current_width==i){
-                g_print("Current:.%d",i);
-                cairo_set_source_rgba(cr,0,0,0.8,1);
+            }else
+            if(priv->current_width==i){
+                g_print("Current:.%d\t",i);
+            cairo_save(cr);
+            gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
+            gtk_render_frame(sc,cr,0,0,side,side);
 
-//                gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_PRELIGHT,TRUE);
+//            gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_PRELIGHT,TRUE);
+            gtk_render_background(sc,cr,0,0,side,side);
+            cairo_restore(cr);
+                cairo_set_source_rgba(cr,0,0,0.8,1);
 
             }else{
 
-                g_print("Normal:.%d",i);
+                g_print("Normal:.%d\t",i);
+            cairo_save(cr);
+            gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
+            gtk_render_frame(sc,cr,0,0,side,side);
+
+//            gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_NORMAL,TRUE);
+            gtk_render_background(sc,cr,0,0,side,side);
+            cairo_restore(cr);
                 cairo_set_source_rgba(cr,0,0,0.0,1);
 
-//                gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_NORMAL,TRUE);
             }
-           
-GtkStateFlags nstat=gtk_widget_get_state_flags (widget);
-            g_print(":: state:%x\t",nstat);
+          
+//GtkStateFlags nstat=gtk_widget_get_state_flags (widget);
+//            g_print(":: state:%x\t",nstat);
 
-            gtk_render_background(sc,cr,0,0,side,side);
-            gtk_render_frame(sc,cr,0,0,side,side);
+//            gtk_render_background(sc,cr,0,0,side,side);
+            cairo_save(cr);
+            gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
+//            gtk_render_frame(sc,cr,0,0,side,side);
             cairo_arc(cr,side/2.0,side/2.0,priv->widths[i]/2.0,0,2*M_PI);
             cairo_fill(cr);
             cairo_restore(cr);
@@ -458,7 +474,11 @@ static gboolean sc_width_chooser_press(GtkWidget*widget,GdkEventButton*e)
 
 GtkWidget* sc_width_chooser_new(int i)
 {
+
     GtkWidget*wc= (GtkWidget*)g_object_new(SC_TYPE_WIDTH_CHOOSER,NULL);  
+
+    SCWidthChooserPriv*priv=SC_WIDTH_CHOOSER(wc)->priv;
+    priv->choosed_width=i;
 
     return wc;
 }

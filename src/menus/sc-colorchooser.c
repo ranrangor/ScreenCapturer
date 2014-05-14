@@ -28,13 +28,22 @@ struct _SCColorChooserPriv{
 };
 
 
-
-
-
-
-
-
-
+static char* colortable[]={
+    
+    "#000000",
+    "#ffffff",
+    "#ff0000",
+    "#7f0000",
+    "#00ff00",
+    "#007f00",
+    "#0000ff",
+    "#00007f",
+    "#ffff00",
+    "#00ffff",
+    "#ff00ff",
+    "#7f7f7f",
+    NULL
+};
 
 
 
@@ -101,26 +110,9 @@ static void init_color(SCColorChooser*cc)
 
     SCColorChooserPriv* priv=cc->priv;
 
-    char* table[]={
-    
-    "#000000",
-    "#ffffff",
-    "#ff0000",
-    "#7f0000",
-    "#00ff00",
-    "#007f00",
-    "#0000ff",
-    "#00007f",
-    "#ffff00",
-    "#00ffff",
-    "#ff00ff",
-    "#7f7f7f",NULL
-    
-    };
-
     int i;
     for(i=0;i<N_COLOR;i++){
-        priv->colors[i]=g_strdup(table[i]);
+        priv->colors[i]=g_strdup(colortable[i]);
     
     }
 
@@ -383,7 +375,7 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
 //    gtk_style_context_add_class(sc,"button");
-//    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
+    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
 
     int side=priv->side;//(priv->height-priv->border*3)/2;
 
@@ -520,7 +512,18 @@ char* sc_color_chooser_get_color(SCColorChooser*cc)
 
 
 
+int sc_color_chooser_get_table(SCColorChooser*cc,char***table)
+{
 
+char** colors=g_strdupv(colortable);
+int i;
+for(i=0;colortable[i]!=NULL; i++);
+
+
+*table=colors;
+
+return i;
+}
 
 
 
