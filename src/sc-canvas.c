@@ -49,12 +49,12 @@ struct _SCCanvasPriv{
 
     GtkWidget*menu;//GtkBox
     GdkWindow*menuwindow;
-    GdkPoint menu_position;
+    GdkRectangle menu_position;
     int menu_dragpos[XY];
 
     GtkWidget*toolmenu;//GtkBox
     GdkWindow*toolmenuwindow;
-    GdkPoint toolmenu_position;
+    GdkRectangle toolmenu_position;
     int tolmenu_dragpos[XY];
 
     GtkWidget*operable_box;
@@ -178,8 +178,12 @@ static void sc_canvas_init(SCCanvas* scobj)
     priv->menu=NULL;
     priv->show_menu=TRUE;
 
+//    priv->menu_position.y=200;
+
 //    priv->popup_menu=sc_canvas_get_popup_menu(scobj);
 
+    GtkStyleContext*sc=gtk_widget_get_style_context(widget);
+    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_MENU);
 
 
 }
@@ -335,7 +339,8 @@ static void sc_canvas_realize(GtkWidget*widget)
 //        gtk_widget_set_parent(priv->operator,widget);
     }
 
-//    gtk_style_context_set_background (gtk_widget_get_style_context (widget), window);
+    GtkStyleContext*sc=gtk_widget_get_style_context (widget);
+    gtk_style_context_set_background (sc, priv->window);
 
 //    gtk_container_forall(GTK_CONTAINER(widget),set_parent_win,widget);
 
@@ -348,7 +353,8 @@ static void sc_canvas_realize(GtkWidget*widget)
     attributes.height=1;
 
     screen=gtk_widget_get_screen(widget);
-    attributes.visual=gdk_screen_get_rgba_visual(screen);
+//    attributes.visual=gdk_screen_get_rgba_visual(screen);
+    attributes.visual=gtk_widget_get_visual(widget);
     attributes.cursor=gdk_cursor_new_for_display(gtk_widget_get_display(widget),GDK_FLEUR);
     attributes_mask=GDK_WA_X|GDK_WA_Y|GDK_WA_VISUAL|GDK_WA_CURSOR;
 
@@ -357,10 +363,9 @@ static void sc_canvas_realize(GtkWidget*widget)
 
     priv->menuwindow=gdk_window_new(parent_window,&attributes,attributes_mask);
     gtk_widget_register_window(widget,priv->menuwindow);
+//    priv->menu_cr=gdk_cairo_create(priv->menuwindow);
 
-//    GtkStyleContext* sc=gtk_widget_get_style_context(widget);
-//    gtk_style_context_set_background(sc,priv->menuwindow);
-//    gdk_window_set_opacity(priv->menuwindow,0.7);
+    gtk_style_context_set_background(sc,priv->menuwindow);
 
     if(priv->menu){
         gtk_widget_set_parent_window(priv->menu,priv->menuwindow);
@@ -374,6 +379,7 @@ static void sc_canvas_realize(GtkWidget*widget)
     priv->toolmenuwindow=gdk_window_new(parent_window,&attributes,attributes_mask);
     gtk_widget_register_window(widget,priv->toolmenuwindow);
 
+    gtk_style_context_set_background(sc,priv->toolmenuwindow);
 
     if(priv->toolmenu){
         gtk_widget_set_parent_window(priv->toolmenu,priv->toolmenuwindow);
@@ -425,13 +431,6 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
     if(!gtk_widget_get_realized(widget))
         return;
 
-     g_message("GDK Window Move& Resize");
-///     g_print("x:%d, y:%d.. width:%d, height:%d\n\n",
-//             allocation->x+priv->position.x,
-//             allocation->y+priv->position.y,
-//             priv->position.width,
-//             priv->position.height);
-
      gdk_window_move_resize(priv->window,
                  allocation->x+priv->position.x,
                  allocation->y+priv->position.y,
@@ -460,13 +459,18 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
 
     if(priv->menu)
     {
+        /*
         if(!priv->show_menu && gdk_window_is_visible(priv->menuwindow)){
             gdk_window_hide(priv->menuwindow);
+            gdk_window_hide(priv->toolmenuwindow);
             return;
         }
-        if(priv->show_menu && !gdk_window_is_visible(priv->menuwindow))
+        if(priv->show_menu && !gdk_window_is_visible(priv->menuwindow)){
             gdk_window_show(priv->menuwindow);
+            gdk_window_show(priv->toolmenuwindow);
 
+        }
+*/
         g_message("Allocate menu_window");
         gtk_widget_get_preferred_size(priv->menu,&menuR,NULL);
 
@@ -480,6 +484,9 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
     menuA.width=menuR.width;
     menuA.height=menuR.height;
 
+    priv->menu_position.width=menuA.width;
+    priv->menu_position.height=menuA.height;
+
     gtk_widget_size_allocate(priv->menu,&menuA);
     }
 
@@ -488,8 +495,11 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
         g_message("Allocate toolmenu_window");
         gtk_widget_get_preferred_size(priv->toolmenu,&toolmenuR,NULL);
 
+    priv->toolmenu_position.x=priv->menu_position.x+5;
+    priv->toolmenu_position.y=priv->menu_position.y+menuR.height+2;
+
     gdk_window_move_resize(priv->toolmenuwindow,
-            priv->menu_position.x, priv->menu_position.y+menuR.height+2,
+            priv->toolmenu_position.x, priv->toolmenu_position.y,
             toolmenuR.width, toolmenuR.height);
     
     
@@ -497,6 +507,9 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
     toolmenuA.y=0;//allocation->y;
     toolmenuA.width=toolmenuR.width;
     toolmenuA.height=toolmenuR.height;
+
+    priv->toolmenu_position.width=toolmenuA.width;
+    priv->toolmenu_position.height=toolmenuA.height;
 
     gtk_widget_size_allocate(priv->toolmenu,&toolmenuA);
     
@@ -508,39 +521,47 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
 static gboolean sc_canvas_draw(GtkWidget* widget,cairo_t*cr)
 {
 
+//    g_message("_Draw()");
     SCCanvasPriv*priv=SC_CANVAS(widget)->priv;
 
-
-//    if(priv->show_menu){
-//    cairo_t*tcr=gdk_cairo_create(priv->menuwindow);
-//    cairo_set_source_rgba(tcr,0.5,0.5,0.9,0.1);
-//    cairo_set_operator(tcr,CAIRO_OPERATOR_SOURCE);
-
-//    cairo_paint(tcr);
-
- //   g_print("ooo Priv->menu:%x\n",priv->menu);
-//    gtk_container_propagate_draw(GTK_CONTAINER(widget),priv->menu,cr);
-//        g_message("Show menu");
-//    }
-
-    GList*l=priv->pixbufs;
-    if(l){
-    gdk_cairo_set_source_pixbuf(cr,l->data,priv->position.x,priv->position.y);
-    cairo_paint(cr);
+    GtkStyleContext*sc=gtk_widget_get_style_context(widget);
+    
+    if(gtk_cairo_should_draw_window(cr,priv->menuwindow)){
+    cairo_save(cr);
+    gtk_cairo_transform_to_window(cr,widget,priv->menuwindow);
+//    cairo_set_source_rgba(cr,0.9,0.9,0.9,0.9);
+    gtk_render_background(sc,cr,0,0,priv->menu_position.width,priv->menu_position.height);
+//    cairo_rectangle(cr,0,0,priv->menu_position.width,priv->menu_position.height);
+//    cairo_fill(cr);
+    cairo_restore(cr);
+    
+    }
+/*
+    g_print("menu.x:%d,menu.y:%d  menu.width:%d,menu.height:%d\n",
+            priv->menu_position.x,priv->menu_position.y,
+            priv->menu_position.width,priv->menu_position.height);
+*/
+    if(gtk_cairo_should_draw_window(cr,priv->toolmenuwindow)){
+    cairo_save(cr);
+    gtk_cairo_transform_to_window(cr,widget,priv->toolmenuwindow);
+//    cairo_set_source_rgba(cr,0.9,0.9,0.9,0.9);
+    gtk_render_background(sc,cr,0,0,priv->toolmenu_position.width,priv->toolmenu_position.height);
+//    cairo_rectangle(cr,0,0,priv->toolmenu_position.width,priv->toolmenu_position.height);
+//    cairo_fill(cr);
+    cairo_restore(cr);
     }
 
+     GList*l=priv->pixbufs;
+    if(l){
+        gdk_cairo_set_source_pixbuf(cr,l->data,priv->position.x,priv->position.y);
+        cairo_paint(cr);
+    }else{
+        sc_canvas_step_done(SC_CANVAS(widget));
+
+    }
 
     return GTK_WIDGET_CLASS(sc_canvas_parent_class)->draw(widget,cr);
 
-
-/*
-    if(priv->operator){
-        gtk_container_propagate_draw(GTK_CONTAINER(widget),priv->operator,cr);
-//        g_message("Draw..() has child..");
-    }
-    
-    return TRUE;
-*/
 }
 
 
@@ -607,7 +628,7 @@ static gboolean sc_canvas_press(GtkWidget* widget, GdkEventButton*e)
     SCCanvasPriv*priv=SC_CANVAS(widget)->priv;
 
 
-    if(e->button==GDK_BUTTON_SECONDARY){// && e->window==priv->window){
+    if(e->button==GDK_BUTTON_SECONDARY && e->window==priv->window){
     
         sc_canvas_do_popup_menu(widget,e);
         return TRUE;
@@ -776,6 +797,8 @@ void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op)
     SCCanvasPriv*priv=canvas->priv;
 
     sc_canvas_set_child(canvas,&priv->operator,priv->window,op);
+    sc_canvas_set_toolmenu(canvas);
+
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
 }
@@ -792,12 +815,22 @@ void sc_canvas_set_menu(SCCanvas*canvas,GtkWidget* me)
 }
 
 
+void sc_canvas_set_toolmenu(SCCanvas*canvas)
+{
+    SCCanvasPriv* priv=canvas->priv;
+
+    if(!priv->operator)
+        return;
+    GtkWidget*toolmenu=sc_operable_obtain_toolmenu(priv->operator);
+    
+    sc_canvas_set_child(canvas,&priv->toolmenu,priv->toolmenuwindow,toolmenu);
+}
+
 
 
 
 GtkWidget*sc_canvas_new(int x,int y,int width, int height)
 {
-
     return (GtkWidget*)g_object_new(SC_TYPE_CANVAS,"x",x,"y",y,"width",width,"height",height,NULL);
 
 }
@@ -829,7 +862,7 @@ void canvas_save_cb(GtkWidget*widget,gpointer d)
     SCCanvas* canvas=SC_CANVAS(d);
 
     g_message("Save to file..");
-    sc_canvas_step_done(canvas);
+//    sc_canvas_step_done(canvas);
     if(sc_canvas_save(canvas))
         sc_canvas_exit(canvas);
 
@@ -930,21 +963,6 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
 
     //g_message("Returning Menu");
     return menu;
-
-}
-
-void sc_canvas_set_toolmenu(SCCanvas*canvas)
-{
-
-    SCCanvasPriv* priv=canvas->priv;
-
-    if(!priv->operator)
-        return;
-
-    GtkWidget*toolmenu=sc_operable_obtain_toolmenu(priv->operator);
-    
-    sc_canvas_set_child(canvas,&priv->toolmenu,priv->toolmenuwindow,toolmenu);
-
 
 }
 
@@ -1249,19 +1267,6 @@ void sc_canvas_step_done(SCCanvas* canvas)
 
     SCCanvasPriv*priv=canvas->priv;
 
-//    g_message("Priv::%x..",priv);
-    //take snapshot of current & save to GdkPixbuf
-    //append the pixbuf to priv->pixbufs;
-    //reset current SCOperable 's content;
-
-/*
-    GdkScreen*screen=gtk_widget_get_screen(GTK_WIDGET(canvas));
-    GdkWindow*root_win=gdk_screen_get_root_window(screen);
-
-    GdkPixbuf*pf=gdk_pixbuf_get_from_window(root_win,priv->position.x,priv->position.y,
-            priv->position.width, priv->position.height);
-*/
-
     GdkPixbuf*pf=gdk_pixbuf_get_from_window(priv->window,0,0,
             priv->position.width, priv->position.height);
 
@@ -1281,6 +1286,7 @@ void sc_canvas_hide_menu(SCCanvas* canvas)
     SCCanvasPriv*priv=canvas->priv;
     priv->show_menu=FALSE;
     gdk_window_hide(priv->menuwindow);
+    gdk_window_hide(priv->toolmenuwindow);
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 }
 
@@ -1291,6 +1297,7 @@ void sc_canvas_show_menu(SCCanvas* canvas)
     SCCanvasPriv*priv=canvas->priv;
     priv->show_menu=TRUE;
     gdk_window_show(priv->menuwindow);
+    gdk_window_show(priv->toolmenuwindow);
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
 }
@@ -1344,7 +1351,7 @@ gboolean sc_canvas_save(SCCanvas* canvas)
 
     strftime(timespec,BUF_SIZE,"%Y%m%d%H%M%S",tmm);
     
-
+    sc_canvas_hide_menu(canvas);
 
     GtkWidget*dialog=gtk_file_chooser_dialog_new("Save Picture",GTK_WINDOW(priv->appwin),GTK_FILE_CHOOSER_ACTION_SAVE,
             "_Save",GTK_RESPONSE_ACCEPT,"_Cancel",GTK_RESPONSE_CANCEL,NULL);
@@ -1375,6 +1382,10 @@ gboolean sc_canvas_save(SCCanvas* canvas)
 
     rtval=TRUE;
 
+    }else{
+        
+    sc_canvas_show_menu(canvas);
+    
     }
 
     gtk_widget_destroy(dialog);
