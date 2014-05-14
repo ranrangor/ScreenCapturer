@@ -70,6 +70,7 @@ void sc_canvas_set_appwin(SCCanvas*canvas,GtkWidget*appwin);
 
 GtkWidget* sc_canvas_get_menu(SCCanvas*canvas);
 GtkWidget* sc_canvas_get_popup_menu(SCCanvas*canvas);
+GtkWidget* sc_canvas_get_operator(SCCanvas*canvas);
 //void sc_canvas_show_menu(SCCanvas* canvas);
 //void sc_canvas_hide_menu(SCCanvas* canvas);
 

@@ -5,6 +5,7 @@
 #include"sc-operators.h"
 #include"sc-arrow.h"
 #include"sc-shape.h"
+#include"sc-text.h"
 #include"sc-utils.h"
 
 
@@ -907,6 +908,13 @@ void canvas_reselect_act(GtkWidget* widget, gpointer d)
 
 }
 
+GtkWidget* sc_canvas_get_operator(SCCanvas*canvas)
+{
+
+    SCCanvasPriv*priv=SC_CANVAS(canvas)->priv;
+    return priv->operator;
+
+}
 
 GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op)
 {
@@ -1313,6 +1321,18 @@ void sc_canvas_undo(SCCanvas* canvas)
 {
 
     SCCanvasPriv*priv=canvas->priv;
+
+    /*Special Case:: SCText..*/
+
+    if(SC_IS_TEXT(priv->operator)&&
+        float_border_count(FLOAT_BORDER(priv->operator))!=0 ){
+        sc_text_remove(SC_TEXT(priv->operator));
+    
+        gtk_widget_queue_resize(GTK_WIDGET(canvas));
+        return;
+    }
+
+
 
     GList*llink=priv->pixbufs;
     //at least one pixbuf rerquired for saving.
