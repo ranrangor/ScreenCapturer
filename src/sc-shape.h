@@ -28,7 +28,7 @@ typedef struct _SCShape{
     GdkRGBA color;
 
     GtkWidget*colorchooser;
-    GtkWidget*widthsetter;
+    GtkWidget*widthchooser;
 
     gboolean pressed;
 

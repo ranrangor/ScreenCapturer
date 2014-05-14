@@ -45,7 +45,7 @@ typedef struct _SCPainter{
     GdkRGBA color;
 
     GtkWidget*colorchooser;
-    GtkWidget*widthsetter;
+    GtkWidget*widthchooser;
 
 
     gboolean pressed;

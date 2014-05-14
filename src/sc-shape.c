@@ -4,7 +4,7 @@
 #include<math.h>
 #include<gtk/gtk.h>
 #include"menus/sc-colorchooser.h"
-#include"menus/sc-widthsetter.h"
+#include"menus/sc-widthchooser.h"
 
 
 
@@ -45,19 +45,22 @@ static void sc_shape_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
 
 
 
-GtkWidget*shape_obtain_menu(SCOperable*operable)
+GtkWidget*shape_obtain_toolmenu(SCOperable*operable)
 {
 
     SCShape* shape=SC_SHAPE(operable);
 
-    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
-    GtkWidget*color=sc_color_chooser_new();
-    GtkWidget*width=sc_width_setter_new(3);
+    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    shape->colorchooser=sc_color_chooser_new();
+    shape->widthchooser=sc_width_chooser_new(1);
+    GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
 
-    shape->colorchooser=color;
-    shape->widthsetter=width;
-    g_object_ref(color);
-    g_object_ref(width);
+    gtk_box_pack_start(GTK_BOX(box),shape->widthchooser,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),sep,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),shape->colorchooser,FALSE,FALSE,0);
+
+    GtkStyleContext*sc=gtk_widget_get_style_context(GTK_WIDGET(shape));
+    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_MENU);
 
     return box;
 
@@ -66,11 +69,8 @@ GtkWidget*shape_obtain_menu(SCOperable*operable)
 static void sc_operable_interface_init(SCOperableInterface* iface)
 {
 
-    iface->toolbutton=gtk_button_new_with_label("shape");
-//    iface->
-//    iface->toolmenu=create_shape_tool_menu();
 
-    iface->obtain_menu=shape_obtain_menu;
+    iface->obtain_toolmenu=shape_obtain_toolmenu;
 
 }
 
@@ -120,6 +120,7 @@ static void sc_shape_init(SCShape*obj)
 
     obj->rectangle.x=obj->rectangle.y=-10;
     obj->rectangle.width=obj->rectangle.height=1;
+
 
 }
 
@@ -241,20 +242,12 @@ static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
     int height =gtk_widget_get_allocated_height(widget);
 
 
-
+    gdk_cairo_set_source_rgba(cr,&shape->color);
     cairo_set_line_width(cr,shape->line_width);
-    
-    cairo_set_source_rgba(cr,1,0,0,1);
-
-//    print_rect(&shape->rectangle);
-
 
     cairo_save(cr);
-
     gtk_cairo_transform_to_window(cr, widget,shape->event_window);
 
-//   cairo_rectangle(cr,0,0,width,height+6);
-//    cairo_fill(cr);
 
     cairo_translate(cr,(double)shape->rectangle.x,(double)shape->rectangle.y);
 
@@ -264,9 +257,7 @@ static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
     gdk_cairo_set_source_rgba(cr,&shape->color);
 
     if(shape->shape_type==TYPE_RECT){    
-  
-//    cairo_set_line_width(cr,0.01);
-    cairo_rectangle(cr,0,0,1,1);
+        cairo_rectangle(cr,0,0,1,1);
 
     }else if(shape->shape_type==TYPE_CIRCLE){
     
@@ -304,10 +295,10 @@ static gboolean sc_shape_press(GtkWidget*widget, GdkEventButton*e)
     shape->rectangle.height=1;
 
 
-//    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(shape->colorchooser));
-//    gdk_rgba_parse(colorspec,&shape->color);
-//
-//    painter->line_width=sc_width_setter_get_value(SC_WIDTH_SETTER(shape->widthsetter));
+    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(shape->colorchooser));
+    gdk_rgba_parse(&shape->color,colorspec);
+
+    shape->line_width=sc_width_chooser_get_width(SC_WIDTH_CHOOSER(shape->widthchooser));
 
         return TRUE;
     }else{

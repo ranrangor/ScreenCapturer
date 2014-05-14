@@ -4,7 +4,7 @@
 #include<math.h>
 #include<gtk/gtk.h>
 #include"menus/sc-colorchooser.h"
-#include"menus/sc-widthsetter.h"
+#include"menus/sc-widthchooser.h"
 
 
 
@@ -41,21 +41,21 @@ static void sc_arrow_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
 
 
 
-GtkWidget*arrow_obtain_menu(SCOperable*operable)
+GtkWidget*arrow_obtain_toolmenu(SCOperable*operable)
 {
 
     SCArrow* arrow=SC_ARROW(operable);
 
-    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     GtkWidget*color=sc_color_chooser_new();
-    GtkWidget*width=sc_width_setter_new(3);
+    GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    GtkWidget*width=sc_width_chooser_new(1);
 
     arrow->colorchooser=color;
-    arrow->widthsetter=width;
-    g_object_ref(color);
-    g_object_ref(width);
+    arrow->widthchooser=width;
 
     gtk_box_pack_start(GTK_BOX(box),width,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),sep,FALSE,FALSE,0);
     gtk_box_pack_start(GTK_BOX(box),color,FALSE,FALSE,0);
 
     return box;
@@ -67,11 +67,9 @@ GtkWidget*arrow_obtain_menu(SCOperable*operable)
 static void sc_operable_interface_init(SCOperableInterface* iface)
 {
 
-    iface->toolbutton=gtk_button_new_with_label("arrow");
-//    iface->
-//    iface->toolmenu=create_arrow_tool_menu();
+//    iface->toolbutton=gtk_button_new_with_label("arrow");
 
-    iface->obtain_menu=arrow_obtain_menu;
+    iface->obtain_toolmenu=arrow_obtain_toolmenu;
 
 }
 
@@ -237,13 +235,13 @@ static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr)
     double arrow_length=2*arrow_width;
 
 
-    double dashs[]={arrow_length,arrow_length,100000};
+    double dashs[]={arrow_length,arrow_length-2,100000};
 
 
 
     cairo_set_line_width(cr,arrow->line_width);
     
-    cairo_set_source_rgba(cr,1,0,0,1);
+    gdk_cairo_set_source_rgba(cr,&arrow->color);
 
 //    print_rect(&arrow->rectangle);
 
@@ -312,10 +310,9 @@ static gboolean sc_arrow_press(GtkWidget*widget, GdkEventButton*e)
         arrow->x1=arrow->x0;
         arrow->y1=arrow->y0;
 
-//    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(arrow->colorchooser));
-//    gdk_rgba_parse(colorspec,&painter->color);
-//
-//    painter->line_width=sc_width_setter_get_value(SC_WIDTH_SETTER(arrow->widthsetter));
+    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(arrow->colorchooser));
+    gdk_rgba_parse(&arrow->color,colorspec);
+    arrow->line_width=sc_width_chooser_get_width(SC_WIDTH_CHOOSER(arrow->widthchooser));
 
 
         return TRUE;

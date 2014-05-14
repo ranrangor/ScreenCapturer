@@ -4,7 +4,7 @@
 #include<math.h>
 #include<gtk/gtk.h>
 #include"menus/sc-colorchooser.h"
-#include"menus/sc-widthsetter.h"
+#include"menus/sc-widthchooser.h"
 
 
 
@@ -62,14 +62,18 @@ void destroy_point(point*p)
 
 
 
-GtkWidget*painter_obtain_menu(SCOperable*operable)
+GtkWidget*painter_obtain_toolmenu(SCOperable*operable)
 {
-    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
-    GtkWidget*color=sc_color_chooser_new();
-    GtkWidget*width=sc_width_setter_new(3);
+    SCPainter*painter=SC_PAINTER(operable);
 
-    gtk_box_pack_start(GTK_BOX(box),width,FALSE,FALSE,0);
-    gtk_box_pack_start(GTK_BOX(box),color,FALSE,FALSE,0);
+    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    painter->colorchooser=sc_color_chooser_new();
+    GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    painter->widthchooser=sc_width_chooser_new(1);
+
+    gtk_box_pack_start(GTK_BOX(box),painter->widthchooser,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),sep,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),painter->colorchooser,FALSE,FALSE,0);
 
     return box;
 
@@ -78,11 +82,8 @@ GtkWidget*painter_obtain_menu(SCOperable*operable)
 static void sc_operable_interface_init(SCOperableInterface* iface)
 {
 
-    iface->toolbutton=gtk_button_new_with_label("painter");
-//    iface->
-//    iface->toolmenu=create_painter_tool_menu();
 
-    iface->obtain_menu=painter_obtain_menu;
+    iface->obtain_toolmenu=painter_obtain_toolmenu;
 
 }
 
@@ -305,19 +306,14 @@ static gboolean sc_painter_press(GtkWidget*widget, GdkEventButton*e)
 
     painter->pressed=TRUE;
 
-//    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(painter->colorchooser));
-//    gdk_rgba_parse(colorspec,&painter->color);
+    char*colorspec=sc_color_chooser_get_color(SC_COLOR_CHOOSER(painter->colorchooser));
+    gdk_rgba_parse(&painter->color,colorspec);
 
-//    painter->line_width=sc_width_setter_get_value(SC_WIDTH_SETTER(painter->widthsetter));
-
-/*
-    g_list_free_full(painter->points,(GDestroyNotify)destroy_point);
-    painter->points=NULL;
-*/
+    painter->line_width=sc_width_chooser_get_width(SC_WIDTH_CHOOSER(painter->widthchooser));
 
 
-        point*newpoint=new_point(e->x,e->y);
-        painter->points=g_list_append(painter->points,newpoint);
+    point*newpoint=new_point(e->x,e->y);
+    painter->points=g_list_append(painter->points,newpoint);
 
     gtk_widget_queue_draw(widget);
 
