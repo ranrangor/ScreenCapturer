@@ -24,13 +24,16 @@ typedef struct _SCText{
     GdkWindow* event_window;
     GtkWidget* text_view;
 
+    GtkWidget*colorchooser;
+    GtkWidget*fontsizechooser;
 
 //    int text_type;
     GdkRectangle position;
 
     //font  color
     GdkRGBA color;
-
+//    GtkWidget*sizetag[11];
+//    GtkWidget*colortag[12];
 
     guint pressed:1;
     guint has_text:1;
@@ -63,7 +66,9 @@ SCOperable* sc_text_new(SCCanvas*canvas);
 void sc_text_reset(SCText*text);
 gboolean sc_text_has_view(SCText*text);
 
+gboolean sc_text_is_focus(SCText*text);
 
+void sc_text_remove(SCText*text);
 
 
 
