@@ -40,7 +40,9 @@ struct _SCColorChooserPriv{
 
 
 
-static gboolean sc_color_chooser_motion(GtkWidget*widget,GdkEventMotion*e);
+//static gboolean sc_color_chooser_motion(GtkWidget*widget,GdkEventMotion*e);
+static gboolean sc_color_chooser_enter(GtkWidget*widget,GdkEventCrossing*e);
+static gboolean sc_color_chooser_leave(GtkWidget*widget,GdkEventCrossing*e);
 static gboolean sc_color_chooser_press(GtkWidget*widget,GdkEventButton*e);
 
 
@@ -71,7 +73,9 @@ static void sc_color_chooser_class_init(SCColorChooserClass*klass)
 //    wclass->get_preferred_height_for_width=sc_color_chooser_get_preferred_height_for_width;
 //    wclass->get_preferred_width_for_height=sc_color_chooser_get_preferred_width_for_height;
 
-    wclass->motion_notify_event=sc_color_chooser_motion;
+//    wclass->motion_notify_event=sc_color_chooser_motion;
+    wclass->enter_notify_event=sc_color_chooser_enter;
+    wclass->leave_notify_event=sc_color_chooser_leave;
     wclass->button_press_event=sc_color_chooser_press;
 
     wclass->realize=sc_color_chooser_realize;
@@ -94,68 +98,6 @@ static void sc_color_chooser_class_init(SCColorChooserClass*klass)
 
 static void init_color(SCColorChooser*cc)
 {
-/*
-    cc[0].red=1.0;
-    cc[0].green=1.0;
-    cc[0].blue=1.0;
-    cc[0].alpha=1.0;
-
-    cc[1].red=0;
-    cc[1].green=0;
-    cc[1].blue=0;
-    cc[1].alpha=1.0;
-
-    cc[2].red=1;
-    cc[2].green=0;
-    cc[2].blue=0;
-    cc[2].alpha=1.0;
-
-    cc[3].red=0;
-    cc[3].green=1;
-    cc[3].blue=0;
-    cc[3].alpha=1.0;
-
-    cc[4].red=0;
-    cc[4].green=0;
-    cc[4].blue=1;
-    cc[4].alpha=1.0;
-
-    cc[5].red=1;
-    cc[5].green=1;
-    cc[5].blue=0;
-    cc[5].alpha=1.0;
-
-    cc[6].red=0;
-    cc[6].green=1;
-    cc[6].blue=1;
-    cc[6].alpha=1.0;
-
-    cc[7].red=1;
-    cc[7].green=0;
-    cc[7].blue=1;
-    cc[7].alpha=1.0;
-
-    cc[8].red=0.5;
-    cc[8].green=0.5;
-    cc[8].blue=0.5;
-    cc[8].alpha=1.0;
-
-    cc[9].red=0.5;
-    cc[9].green=0;
-    cc[9].blue=0;
-    cc[9].alpha=1.0;
-
-    cc[10].red=0;
-    cc[10].green=0.5;
-    cc[10].blue=0;
-    cc[10].alpha=1.0;
-
-    cc[11].red=0;
-    cc[11].green=0;
-    cc[11].blue=0.5;
-    cc[11].alpha=1.0;
-*/
-
 
     SCColorChooserPriv* priv=cc->priv;
 
@@ -205,6 +147,8 @@ static void sc_color_chooser_init(SCColorChooser*obj)
 //    init_color((GdkRGBA*)&priv->colors);
     init_color(obj);
 
+    GtkStyleContext*sc=gtk_widget_get_style_context(widget);
+    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_FRAME);
 
     gtk_widget_set_has_window(widget,FALSE);
 
@@ -273,7 +217,11 @@ static void sc_color_chooser_realize(GtkWidget*widget)
     attributes.height=1;
 
     attributes.wclass=GDK_INPUT_ONLY;
-    attributes.event_mask=gtk_widget_get_events(widget)|GDK_BUTTON_PRESS_MASK|GDK_POINTER_MOTION_MASK;
+    attributes.event_mask=gtk_widget_get_events(widget)|
+        GDK_BUTTON_PRESS_MASK|
+        GDK_POINTER_MOTION_MASK|
+        GDK_LEAVE_NOTIFY_MASK|
+        GDK_ENTER_NOTIFY_MASK;
 
     attributes_mask=GDK_WA_X|GDK_WA_Y;
     
@@ -394,7 +342,7 @@ static void sc_color_chooser_size_allocate(GtkWidget*widget,GtkAllocation*alloca
 
 
 
-void render_border(cairo_t *cr,int x,int y, int width,int height)//, gboolean active)
+static void render_border(cairo_t *cr,int x,int y, int width,int height)//, gboolean active)
 {
 
     cairo_save(cr);
@@ -402,7 +350,7 @@ void render_border(cairo_t *cr,int x,int y, int width,int height)//, gboolean ac
     cairo_set_line_join(cr,CAIRO_LINE_JOIN_ROUND);
     cairo_set_source_rgba(cr,0,0,0,1);
 
-    cairo_set_line_width(cr,2);
+    cairo_set_line_width(cr,2.5);
 
     cairo_rectangle(cr,x,y,width,height);
     cairo_stroke(cr);
@@ -428,16 +376,14 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
 
     GdkRGBA c;
-//    c.alpha=1;
     GtkAllocation alloc;
     gtk_widget_get_allocation(widget,&alloc);
 
 //    cairo_set_source_rgba(cr,1,0,0,1);
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
-    gtk_style_context_add_class(sc,"button");
-
-    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
+//    gtk_style_context_add_class(sc,"button");
+//    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
 
     int side=priv->side;//(priv->height-priv->border*3)/2;
 
@@ -500,9 +446,9 @@ static int seek_num_of_window(SCColorChooserPriv* priv, GdkWindow*win)
 }
 
 
-static gboolean sc_color_chooser_motion(GtkWidget*widget,GdkEventMotion*e)
+static gboolean sc_color_chooser_enter(GtkWidget*widget,GdkEventCrossing*e)
 {
-
+    g_message("Enter notify..");
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
 
     int nn=seek_num_of_window(priv,e->window);
@@ -510,12 +456,27 @@ static gboolean sc_color_chooser_motion(GtkWidget*widget,GdkEventMotion*e)
     if(nn!=-1)
         priv->current_color=nn;
 
+    gtk_widget_queue_draw(widget);
+
+    return TRUE;
+
+}
+
+
+
+static gboolean sc_color_chooser_leave(GtkWidget*widget,GdkEventCrossing*e)
+{
+    g_message("Leave notify..");
+    SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
+
+    priv->current_color=-1;
 
     gtk_widget_queue_draw(widget);
 
     return TRUE;
 
 }
+
 
 
 static gboolean sc_color_chooser_press(GtkWidget*widget,GdkEventButton*e)
