@@ -15,9 +15,9 @@ context=gtk_widget_get_style_context(GTK_WIDGET(button));
  
 gtk_style_context_add_provider(context,GTK_STYLE_PROVIDER(provider),GTK_STYLE_PROVIDER_PRIORITY_USER);
  
-gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),"GtkButton {padding:0}",-1,NULL);
+gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),"GtkButton {border-radius:0px ;padding:0}",-1,NULL);
 
-
+g_object_unref(provider);
 
 }
 
@@ -42,6 +42,7 @@ GtkWidget*sc_image_button_new(const guint8* data)
     gtk_button_set_image(GTK_BUTTON(button),image);
     gtk_button_set_always_show_image(GTK_BUTTON(button),TRUE);
     
+    sc_button_set_style(GTK_BUTTON(button));
 
 
     return button;
