@@ -39,15 +39,15 @@ struct _SCCanvasPriv{
 
     GList* pixbufs;
     GtkWidget*appwin;
-//    gint current_pixbuf;
-//    GtkAllocation position;
+
+
     GdkRectangle position;
     
     GtkWidget*operator;
     GdkWindow*window;
 
 //    GtkWidget*popup_menu;
-
+//
     GtkWidget*menu;//GtkBox
     GdkWindow*menuwindow;
     GdkRectangle menu_position;
@@ -822,7 +822,7 @@ void sc_canvas_set_toolmenu(SCCanvas*canvas)
 
     if(!priv->operator)
         return;
-    GtkWidget*toolmenu=sc_operable_obtain_toolmenu(priv->operator);
+    GtkWidget*toolmenu=sc_operable_obtain_toolmenu(SC_OPERABLE(priv->operator));
     
     sc_canvas_set_child(canvas,&priv->toolmenu,priv->toolmenuwindow,toolmenu);
 }
@@ -946,7 +946,7 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
 
 //    gtk_box_pack_start(GTK_BOX(priv->menu),priv->operable_box,TRUE,TRUE,0);
 
-    GtkWidget*movehandle=gtk_label_new(" ");
+    GtkWidget*movehandle=sc_image_new_by_size(icon_move_handle,6,20);
 
     gtk_grid_attach(GTK_GRID(menu), movehandle,0,0,1,1);
 //    gtk_grid_attach(GTK_GRID(priv->menu), priv->operable_box,0,0,1,1);
@@ -957,21 +957,6 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
     gtk_grid_attach_next_to(GTK_GRID(menu),item_done,item_save,GTK_POS_RIGHT,1,1);
     gtk_grid_attach_next_to(GTK_GRID(menu),item_exit,item_done,GTK_POS_RIGHT,1,1);
 
-//    GdkRGBA opacity={0,};
-//    gtk_widget_override_background_color(priv->menu,0,&opacity);
-/*
-    gtk_widget_show(priv->operable_box);
-    gtk_widget_show(item_undo);
-    gtk_widget_show(item_save);
-    gtk_widget_show(item_done);
-    gtk_widget_show(item_exit);
-    gtk_widget_show_all(priv->menu);
-*/
-    //for propagate_draw();
-//    gtk_widget_set_parent(priv->menu,GTK_WIDGET(canvas));
-//    gtk_widget_set_parent_window(priv->menu,priv->menuwindow);
-
-    //g_message("Returning Menu");
     return menu;
 
 }
@@ -984,28 +969,37 @@ GtkWidget*sc_canvas_get_popup_menu(SCCanvas*canvas)
 
 
     GtkWidget*menu=gtk_menu_new();
-    //gtk_widget_set_opacity(menu,0.2);
 
+    /*
     GtkWidget*item_shape=gtk_menu_item_new_with_label("shape");
     GtkWidget*item_arrow=gtk_menu_item_new_with_label("arrow");
     GtkWidget*item_painter=gtk_menu_item_new_with_label("painter");
     GtkWidget*item_text=gtk_menu_item_new_with_label("text");
     
+GtkWidget*sc_image_text_item_new(const guint8*data,const char*text,int siz);
+*/
+    GtkWidget*item_shape=sc_image_text_item_new(icon_shape_circle,"Shape",20);
+    GtkWidget*item_arrow=sc_image_text_item_new(icon_arrow,"Arrow",20);
+    GtkWidget*item_painter=sc_image_text_item_new(icon_painter,"Painter",20);
+    GtkWidget*item_text=sc_image_text_item_new(icon_text,"Text",20);
+
+
     char*xmenu_label;
-    if(priv->show_menu)
-        xmenu_label="hide menu";
-    else
-        xmenu_label="show menu";
+    GtkWidget*item_xmenu;
+    if(priv->show_menu){
+        item_xmenu=sc_image_text_item_new(icon_hide_menu,"Hide menu",20);
+    }else{
+        item_xmenu=sc_image_text_item_new(icon_show_menu,"Show menu",20);
 
-    GtkWidget*item_xmenu=gtk_menu_item_new_with_label(xmenu_label);
+    }
 
-    GtkWidget*item_reselect=gtk_menu_item_new_with_label("reselect");
+
+    GtkWidget*item_reselect=sc_image_text_item_new(icon_reselect,"Reselect",20);
     GtkWidget*item_sep=gtk_separator_menu_item_new();
-
-    GtkWidget*item_undo=gtk_menu_item_new_with_label("undo");
-    GtkWidget*item_done=gtk_menu_item_new_with_mnemonic("_done");
-    GtkWidget*item_save=gtk_menu_item_new_with_mnemonic("_save");
-    GtkWidget*item_exit=gtk_menu_item_new_with_label("exit");
+    GtkWidget*item_undo=sc_image_text_item_new(icon_undo,"Undo",20);
+    GtkWidget*item_done=sc_image_text_item_new(icon_done,"Done",20);
+    GtkWidget*item_save=sc_image_text_item_new(icon_save,"Save",20);
+    GtkWidget*item_exit=sc_image_text_item_new(icon_exit,"Exit",20);
 
 
     gtk_menu_shell_append(GTK_MENU_SHELL(menu),item_shape);
