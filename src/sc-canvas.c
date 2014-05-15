@@ -184,7 +184,7 @@ static void sc_canvas_init(SCCanvas* scobj)
 //    priv->popup_menu=sc_canvas_get_popup_menu(scobj);
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
-    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_MENU);
+    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_TOOLBAR);
 
 
 }
@@ -629,8 +629,8 @@ static gboolean sc_canvas_press(GtkWidget* widget, GdkEventButton*e)
     SCCanvasPriv*priv=SC_CANVAS(widget)->priv;
 
 
-    if(e->button==GDK_BUTTON_SECONDARY && e->window==priv->window){
-    
+    if(e->button==GDK_BUTTON_SECONDARY && e->window!=priv->menuwindow){
+        g_message("do_popup_menu..");
         sc_canvas_do_popup_menu(widget,e);
         return TRUE;
     }
@@ -938,6 +938,7 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
     GtkWidget*item_done=sc_image_button_new_by_size(icon_done,20);
     GtkWidget*item_exit=sc_image_button_new_by_size(icon_exit,20);
 
+    GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     g_signal_connect(G_OBJECT(item_undo),"clicked",G_CALLBACK(canvas_undo_cb),canvas);
     g_signal_connect(G_OBJECT(item_done),"clicked",G_CALLBACK(canvas_done_cb),canvas);
     g_signal_connect(G_OBJECT(item_save),"clicked",G_CALLBACK(canvas_save_cb),canvas);
@@ -950,7 +951,8 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
     gtk_grid_attach(GTK_GRID(menu), movehandle,0,0,1,1);
 //    gtk_grid_attach(GTK_GRID(priv->menu), priv->operable_box,0,0,1,1);
     gtk_grid_attach_next_to(GTK_GRID(menu),priv->operable_box,movehandle,GTK_POS_RIGHT,1,1);
-    gtk_grid_attach_next_to(GTK_GRID(menu),item_undo,priv->operable_box,GTK_POS_RIGHT,1,1);
+    gtk_grid_attach_next_to(GTK_GRID(menu),sep,priv->operable_box,GTK_POS_RIGHT,1,1);
+    gtk_grid_attach_next_to(GTK_GRID(menu),item_undo,sep,GTK_POS_RIGHT,1,1);
     gtk_grid_attach_next_to(GTK_GRID(menu),item_save,item_undo,GTK_POS_RIGHT,1,1);
     gtk_grid_attach_next_to(GTK_GRID(menu),item_done,item_save,GTK_POS_RIGHT,1,1);
     gtk_grid_attach_next_to(GTK_GRID(menu),item_exit,item_done,GTK_POS_RIGHT,1,1);
