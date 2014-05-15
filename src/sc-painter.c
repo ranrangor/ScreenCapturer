@@ -265,6 +265,7 @@ static gboolean sc_painter_draw(GtkWidget*widget, cairo_t*cr)
     cairo_set_line_width(cr,painter->line_width);
     
     cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND);
+    cairo_set_line_join(cr,CAIRO_LINE_JOIN_ROUND);
     
     GList*points=painter->points;
 
