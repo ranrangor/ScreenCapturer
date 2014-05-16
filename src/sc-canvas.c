@@ -44,6 +44,7 @@ struct _SCCanvasPriv{
     
     GtkWidget*operator;
     GdkWindow*window;
+    int last_operator_type;
 
     GtkWidget*operator_actions[N_OPERATORS];
     int last_toggled;
@@ -177,6 +178,7 @@ static void sc_canvas_init(SCCanvas* scobj)
     priv->show_menu=TRUE;
 
     priv->last_toggled=-1;
+    priv->last_operator_type=-1;
 //    priv->menu_position.y=200;
 
 //    priv->popup_menu=sc_canvas_get_popup_menu(scobj);
@@ -796,6 +798,26 @@ void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op)
 {
 
     SCCanvasPriv*priv=canvas->priv;
+
+    if(sc_canvas_operator_get_last_type(canvas)== OPERATOR_TEXT){
+        g_print("Operator is SCText:[%x]\n",priv->operator);
+
+        //take snap;
+       SCText*text=priv->operator; 
+        FloatBorder*fb=FLOAT_BORDER(text);
+ 
+        float_border_show_border(fb,FALSE);
+        if(sc_text_has_view(text))
+            gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(sc_text_get_view(text)),FALSE);
+//forcing hide border,Before step_done().        
+        while(gtk_events_pending()){
+            gdk_flush();//before gtk_main_iteration()
+            gtk_main_iteration();
+        }
+        
+        sc_canvas_step_done(canvas);
+    
+    }
 
     sc_canvas_set_child(canvas,&priv->operator,priv->window,op);
     sc_canvas_set_toolmenu(canvas);
@@ -1526,3 +1548,18 @@ void sc_canvas_operator_toggled(SCCanvas*canvas,int id)
 }
 
 
+void sc_canvas_operator_set_type(SCCanvas*canvas,int type)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+    priv->last_operator_type=type;
+
+
+}
+
+int sc_canvas_operator_get_last_type(SCCanvas*canvas)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+    return priv->last_operator_type;
+}

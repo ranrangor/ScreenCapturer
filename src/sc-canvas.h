@@ -113,4 +113,8 @@ void sc_canvas_add_operator(SCCanvas*canvas,int id,const guint8*icon,void (*acti
 void sc_canvas_operator_button_reset(SCCanvas*canvas);
 void sc_canvas_operator_toggled(SCCanvas*canvas,int id);
 
+
+void sc_canvas_operator_set_type(SCCanvas*canvas,int type);
+int sc_canvas_operator_get_last_type(SCCanvas*canvas);
+
 #endif

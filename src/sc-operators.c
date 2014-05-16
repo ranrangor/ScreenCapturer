@@ -24,13 +24,14 @@ void operator_shape_act(GtkWidget*widget,gpointer d)
         GtkWidget*shape=sc_shape_new(canvas);
 
         sc_canvas_set_operator(canvas,shape);
+        sc_canvas_operator_set_type(canvas,OPERATOR_SHAPE);
 
     }else{
         g_print("UNActived...[shape]\n");
     
         sc_canvas_operator_toggled(canvas,-1);
-    
-        sc_canvas_unset_operator(canvas);
+        sc_canvas_hide_toolmenu(canvas);
+//        sc_canvas_unset_operator(canvas);
 
 
     }
@@ -58,13 +59,15 @@ void operator_arrow_act(GtkWidget*widget,gpointer d)
         GtkWidget*shape=sc_arrow_new(canvas);
 
         sc_canvas_set_operator(canvas,shape);
+        sc_canvas_operator_set_type(canvas,OPERATOR_ARROW);
 
     }else{
     
         g_print("UNActived...[arrow]\n");
         sc_canvas_operator_toggled(canvas,-1);
+        sc_canvas_hide_toolmenu(canvas);
     
-        sc_canvas_unset_operator(canvas);
+//        sc_canvas_unset_operator(canvas);
     
     }
 
@@ -88,13 +91,15 @@ void operator_painter_act(GtkWidget*widget,gpointer d)
         GtkWidget*shape=sc_painter_new(canvas);
 
         sc_canvas_set_operator(canvas,shape);
+        sc_canvas_operator_set_type(canvas,OPERATOR_PAINTER);
 
     }else{
         g_print("UNActived...[painter]\n");
     
         sc_canvas_operator_toggled(canvas,-1);
+        sc_canvas_hide_toolmenu(canvas);
     
-        sc_canvas_unset_operator(canvas);
+//        sc_canvas_unset_operator(canvas);
     
     }
 
@@ -119,13 +124,15 @@ void operator_text_act(GtkWidget*widget,gpointer d)
         GtkWidget*shape=sc_text_new(canvas);
 
         sc_canvas_set_operator(canvas,shape);
+        sc_canvas_operator_set_type(canvas,OPERATOR_TEXT);
 
     }else{
         g_print("UNActived...[text]\n");
     
         sc_canvas_operator_toggled(canvas,-1);
+        sc_canvas_hide_toolmenu(canvas);
     
-        sc_canvas_unset_operator(canvas);
+ //       sc_canvas_unset_operator(canvas);
     
     }
 
