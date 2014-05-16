@@ -64,9 +64,11 @@ GType sc_text_get_type(void);
 SCOperable* sc_text_new(SCCanvas*canvas);
 
 void sc_text_reset(SCText*text);
-gboolean sc_text_has_view(SCText*text);
+GtkWidget*sc_text_get_view(SCText*text);
 
+gboolean sc_text_has_view(SCText*text);
 gboolean sc_text_is_focus(SCText*text);
+
 
 void sc_text_remove(SCText*text);
 

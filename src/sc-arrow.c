@@ -47,7 +47,7 @@ GtkWidget*arrow_obtain_toolmenu(SCOperable*operable)
     SCArrow* arrow=SC_ARROW(operable);
 
     GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-    GtkWidget*color=sc_color_chooser_new();
+    GtkWidget*color=sc_color_chooser_new(GTK_WIDGET(arrow));
     GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     GtkWidget*width=sc_width_chooser_new(1);
 

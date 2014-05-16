@@ -1,6 +1,7 @@
 
 #include<gtk/gtk.h>
 #include"sc-fontsizechooser.h"
+#include"../sc-text.h"
 #include<stdlib.h>
 
 
@@ -8,12 +9,34 @@ static int fontsiz_table[]={8,9,10,12,14,16,18,20,22};
 
 
 
-GtkWidget* sc_fontsize_chooser_new(int defaultsize)
+static void changed_notify(GtkWidget*widget,GParamSpec *pspec,gpointer d)
+{
+    g_print("In ChangedNotify:[]%x[] \n",d);
+
+    GtkTextView*tv=sc_text_get_view(d);
+    g_print("Notify::Changed...itv{%x}.\n",tv);
+    if(!tv)
+    {
+        g_print("NULL TV..\n");
+        return;
+    
+    }
+    GtkTextBuffer*buff=gtk_text_view_get_buffer(tv);
+
+    g_signal_emit_by_name(buff,"changed",d,NULL);
+
+
+}
+
+
+GtkWidget* sc_fontsize_chooser_new(int defaultsize,SCText*text)
 {
 
+    g_print("SCText is [%x]\n\n",text);
 
     GtkWidget*comb=gtk_combo_box_text_new();
 
+    gtk_widget_set_can_focus(comb,FALSE);
 
     int i;
     int num_fsiz=sizeof(fontsiz_table)/sizeof(int);
@@ -38,6 +61,7 @@ GtkWidget* sc_fontsize_chooser_new(int defaultsize)
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(comb),defaultindex);
 
+    g_signal_connect(G_OBJECT(comb),"notify::active",G_CALLBACK(changed_notify),(text));
 
     return comb;
 

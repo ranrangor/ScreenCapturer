@@ -67,7 +67,7 @@ GtkWidget*painter_obtain_toolmenu(SCOperable*operable)
     SCPainter*painter=SC_PAINTER(operable);
 
     GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-    painter->colorchooser=sc_color_chooser_new();
+    painter->colorchooser=sc_color_chooser_new(GTK_WIDGET(painter));
     GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     painter->widthchooser=sc_width_chooser_new(1);
 

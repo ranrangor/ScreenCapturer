@@ -44,7 +44,7 @@ GtkWidget*shape_obtain_toolmenu(SCOperable*operable)
 
     GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     shape->shapechooser=sc_shape_chooser_new(0);
-    shape->colorchooser=sc_color_chooser_new();
+    shape->colorchooser=sc_color_chooser_new(GTK_WIDGET(shape));
     shape->widthchooser=sc_width_chooser_new(1);
     GtkWidget*sep0=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     GtkWidget*sep1=gtk_separator_new(GTK_ORIENTATION_VERTICAL);

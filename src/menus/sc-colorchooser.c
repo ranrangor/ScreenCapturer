@@ -1,7 +1,7 @@
 
 #include<gtk/gtk.h>
 #include"sc-colorchooser.h"
-
+#include"../sc-text.h"
 
 
 #define N_COLOR 12
@@ -11,6 +11,7 @@
 struct _SCColorChooserPriv{
 
 
+    GtkWidget* associated_operator;
 //    GdkWindow*preview;
     GdkWindow*chooser_window[N_COLOR];
 //    GdkRGBA colors[N_COLOR];
@@ -418,6 +419,27 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
 }
 
+static void sc_color_chooser_do_notify(SCColorChooser*chooser)
+{
+    g_print("Do notify....ColorChooser..\n\n");
+    SCColorChooserPriv*priv=chooser->priv;
+
+    GtkWidget*wgt=priv->associated_operator;
+
+    if(SC_IS_TEXT(wgt)){
+
+        GtkTextView*tv=sc_text_get_view(wgt);
+        
+        if(!tv){
+            g_print("NULL TV..\n");
+            return; 
+        }
+        GtkTextBuffer*buff=gtk_text_view_get_buffer(tv);
+        g_signal_emit_by_name(buff,"changed",wgt,NULL);
+    
+    }
+
+}
 
 static int seek_num_of_window(SCColorChooserPriv* priv, GdkWindow*win)
 {
@@ -478,9 +500,11 @@ static gboolean sc_color_chooser_press(GtkWidget*widget,GdkEventButton*e)
 
      int nn=seek_num_of_window(priv,e->window);
 
-    if(nn!=-1)
+    if(nn!=-1){
         priv->choosed_color=nn;
-
+        /*Color changed Notify::*/
+        sc_color_chooser_do_notify(SC_COLOR_CHOOSER(widget));
+    }
 
     gtk_widget_queue_draw(widget);
 
@@ -493,9 +517,13 @@ static gboolean sc_color_chooser_press(GtkWidget*widget,GdkEventButton*e)
 
 
 
-GtkWidget* sc_color_chooser_new()
+GtkWidget* sc_color_chooser_new(GtkWidget*assoc)
 {
-    return (GtkWidget*)g_object_new(SC_TYPE_COLOR_CHOOSER,NULL);
+    GtkWidget* w= (GtkWidget*)g_object_new(SC_TYPE_COLOR_CHOOSER,NULL);
+    SCColorChooserPriv*priv=SC_COLOR_CHOOSER(w)->priv;
+    priv->associated_operator=assoc;
+
+    return w;
 
 }
 

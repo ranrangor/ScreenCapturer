@@ -30,10 +30,11 @@ GtkWidget*text_obtain_toolmenu(SCOperable*operable)
 {
 
     SCText* text=SC_TEXT(operable);
+    g_print("Text in OBMENU is [%x]\n",text);
 
     GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-    text->fontsizechooser=sc_fontsize_chooser_new(12);
-    text->colorchooser=sc_color_chooser_new();
+    text->fontsizechooser=sc_fontsize_chooser_new(12,text);
+    text->colorchooser=sc_color_chooser_new(GTK_WIDGET(text));
 
     GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
 
@@ -96,6 +97,7 @@ static void text_changed(GtkTextBuffer*buffer,gpointer d)
     char*fontsiz=g_strdup_printf("fsiz%d",fsiz);
 
     g_print("fontsize::[%s]\ncolor::[%s]..\n",fontsiz,colorspec);
+    g_print("IterStart:[%d]  IterEnd:[%d]..\n",iter_start,iter_end);
 
     gtk_text_buffer_apply_tag_by_name(buffer,fontsiz,&iter_start,&iter_end);
     gtk_text_buffer_apply_tag_by_name(buffer,colorspec,&iter_start,&iter_end);
@@ -164,7 +166,7 @@ static gboolean sc_text_press(GtkWidget*widget, GdkEventButton*e)
         text->position.y=(int)e->y;
 
         float_border_show_border(fb,FALSE);
-        if(text->text_view)
+        if(sc_text_has_view(text))
             gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(text->text_view),FALSE);
 //forcing hide border,Before step_done().        
         while(gtk_events_pending()){
@@ -271,7 +273,7 @@ static void create_color_tags(GtkTextBuffer*buffer,char** table,int num_colors)
     int i;
     for(i=0; i<num_colors; i++){
 
-        g_print("Color Tag:: %s \n",table[i]);
+//        g_print("Color Tag:: %s \n",table[i]);
         gdk_rgba_parse(&color,table[i]);
         gtk_text_buffer_create_tag(buffer,table[i],"foreground-rgba",&color,NULL);
 
@@ -288,9 +290,9 @@ static void create_fsiz_tags(GtkTextBuffer*buffer,int* table,int num_fsiz)
     for(i=0; i<num_fsiz; i++){
 
         tagname=g_strdup_printf("fsiz%d",table[i]);
-        g_print("Fontsize Tag:: %s \n",tagname);
+//        g_print("Fontsize Tag:: %s \n",tagname);
         gtk_text_buffer_create_tag(buffer,tagname,"size",table[i]*PANGO_SCALE,NULL);
-  //      g_free(tagname);
+        g_free(tagname);
 
     }
 
@@ -315,27 +317,15 @@ static GtkTextBuffer* text_view_buffer_init(GtkTextView* view,SCText*text)
     int length;
     length=sc_color_chooser_get_table(text->colorchooser,&colortable);
 
-    
-    int i;
-    for(i=0;i<length;i++){
-    
-        g_print("[%d] :: {%s} \n",i,colortable[i]);
-
-    }
 
     create_color_tags(buffer, colortable,length);
 
     int*fsiztable;
     length=sc_fontsize_chooser_get_table(text->fontsizechooser,&fsiztable);
-    for(i=0;i<length;i++){
-    
-        g_print("[%d] :: {%d} \n",i,fsiztable[i]);
-
-    }
 
     create_fsiz_tags(buffer, fsiztable,length);
 
-    g_print("CREATE TAGS OK>>>>.>>>>>\n");
+//    g_print("CREATE TAGS OK>>>>.>>>>>\n");
 
 //    gtk_text_buffer_apply_tag_by_name(buffer,"fsiz18",&iter_start,&iter_end);
 //    gtk_text_buffer_apply_tag_by_name(buffer,"#ff0000",&iter_start,&iter_end);
@@ -351,6 +341,10 @@ static GtkTextBuffer* text_view_buffer_init(GtkTextView* view,SCText*text)
 
 
 
+GtkWidget*sc_text_get_view(SCText*text)
+{
+    return text->text_view;
+}
 
 
 

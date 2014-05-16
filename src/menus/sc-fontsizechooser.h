@@ -5,7 +5,7 @@
 
 
 #include<gtk/gtk.h>
-
+#include"../sc-text.h"
 
 
 #define SC_FONTSIZE_CHOOSER(obj) (obj)
@@ -20,7 +20,7 @@
 typedef GtkWidget SCFontsizeChooser;
 
 
-GtkWidget* sc_fontsize_chooser_new(int );
+GtkWidget* sc_fontsize_chooser_new(int, SCText*);
 int sc_fontsize_chooser_get_size(SCFontsizeChooser*chooser);
 int sc_fontsize_chooser_get_table(SCFontsizeChooser*chooser,int**table);
 
