@@ -4,17 +4,9 @@
 #include<math.h>
 #include<gtk/gtk.h>
 #include"menus/sc-colorchooser.h"
+#include"menus/sc-shapechooser.h"
 #include"menus/sc-widthchooser.h"
 
-
-
-
-enum{
-    NO_TYPE,
-    TYPE_RECT,
-    TYPE_CIRCLE,
-    N_TYPES
-};
 
 
 
@@ -51,12 +43,16 @@ GtkWidget*shape_obtain_toolmenu(SCOperable*operable)
     SCShape* shape=SC_SHAPE(operable);
 
     GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    shape->shapechooser=sc_shape_chooser_new(0);
     shape->colorchooser=sc_color_chooser_new();
     shape->widthchooser=sc_width_chooser_new(1);
-    GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    GtkWidget*sep0=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    GtkWidget*sep1=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
 
+    gtk_box_pack_start(GTK_BOX(box),shape->shapechooser,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),sep0,FALSE,FALSE,0);
     gtk_box_pack_start(GTK_BOX(box),shape->widthchooser,FALSE,FALSE,0);
-    gtk_box_pack_start(GTK_BOX(box),sep,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),sep1,FALSE,FALSE,0);
     gtk_box_pack_start(GTK_BOX(box),shape->colorchooser,FALSE,FALSE,0);
 
     GtkStyleContext*sc=gtk_widget_get_style_context(GTK_WIDGET(shape));
@@ -109,7 +105,7 @@ static void sc_shape_init(SCShape*obj)
     GtkWidget* wobj=GTK_WIDGET(obj);
 
     //obj->shape_type=TYPE_RECT;
-    obj->shape_type=TYPE_CIRCLE;
+//    obj->shape_type=TYPE_CIRCLE;
    
     gtk_widget_set_has_window(wobj,FALSE);
 
@@ -256,10 +252,10 @@ static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
 
     gdk_cairo_set_source_rgba(cr,&shape->color);
 
-    if(shape->shape_type==TYPE_RECT){    
+    if(shape->shape_type==SHAPE_RECT){    
         cairo_rectangle(cr,0,0,1,1);
 
-    }else if(shape->shape_type==TYPE_CIRCLE){
+    }else if(shape->shape_type==SHAPE_CIRCLE){
     
     cairo_arc(cr,0.5,0.5,0.5,0,2*M_PI);
     
@@ -299,6 +295,7 @@ static gboolean sc_shape_press(GtkWidget*widget, GdkEventButton*e)
     gdk_rgba_parse(&shape->color,colorspec);
 
     shape->line_width=sc_width_chooser_get_width(SC_WIDTH_CHOOSER(shape->widthchooser));
+    shape->shape_type=sc_shape_chooser_get_shape(SC_SHAPE_CHOOSER(shape->shapechooser));
 
         return TRUE;
     }else{
