@@ -97,7 +97,7 @@ static void init_widths(SCWidthChooser*wc)
     SCWidthChooserPriv* priv=wc->priv;
 
     int table[]={
-    4,6,8
+    2,5,9
     };
 
     int i;
@@ -336,7 +336,7 @@ static gboolean sc_width_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
 
-    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
+//    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
     int side=priv->side;//(priv->height-priv->border*3)/2;
     
 
@@ -346,44 +346,38 @@ static gboolean sc_width_chooser_draw(GtkWidget*widget,cairo_t*cr)
         for(i=0;i<priv->n_widths;i++){
 
              if(priv->choosed_width==i){
-                g_print("Choosed:.%d\t",i);
+//                g_print("Choosed:.%d\t",i);
             cairo_save(cr);
             gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
             gtk_render_frame(sc,cr,0,0,side,side);
-
-//            gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_ACTIVE,TRUE);
-            gtk_render_background(sc,cr,0,0,side,side);
+//            gtk_style_context_set_state(sc,GTK_STATE_FLAG_ACTIVE);
+//            gtk_render_background(sc,cr,0,0,side,side);
             cairo_restore(cr);
                 cairo_set_source_rgba(cr,0.0,0.8,0,1);
             
             }else
             if(priv->current_width==i){
-                g_print("Current:.%d\t",i);
+//                g_print("Current:.%d\t",i);
             cairo_save(cr);
             gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
             gtk_render_frame(sc,cr,0,0,side,side);
-
-//            gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_PRELIGHT,TRUE);
-            gtk_render_background(sc,cr,0,0,side,side);
+//            gtk_style_context_set_state(sc,GTK_STATE_FLAG_PRELIGHT);
+//            gtk_render_background(sc,cr,0,0,side,side);
             cairo_restore(cr);
                 cairo_set_source_rgba(cr,0,0,0.8,1);
 
             }else{
-
-                g_print("Normal:.%d\t",i);
+//                g_print("Normal:.%d\t",i);
             cairo_save(cr);
             gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
             gtk_render_frame(sc,cr,0,0,side,side);
-
-//            gtk_widget_set_state_flags(widget,GTK_STATE_FLAG_NORMAL,TRUE);
-            gtk_render_background(sc,cr,0,0,side,side);
+//            gtk_style_context_set_state(sc,GTK_STATE_FLAG_NORMAL);
+//            gtk_render_background(sc,cr,0,0,side,side);
             cairo_restore(cr);
                 cairo_set_source_rgba(cr,0,0,0.0,1);
 
             }
           
-//GtkStateFlags nstat=gtk_widget_get_state_flags (widget);
-//            g_print(":: state:%x\t",nstat);
 
 //            gtk_render_background(sc,cr,0,0,side,side);
             cairo_save(cr);
