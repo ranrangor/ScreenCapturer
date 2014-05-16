@@ -117,4 +117,9 @@ void sc_canvas_operator_toggled(SCCanvas*canvas,int id);
 void sc_canvas_operator_set_type(SCCanvas*canvas,int type);
 int sc_canvas_operator_get_last_type(SCCanvas*canvas);
 
+void sc_canvas_menu_position_dispose(SCCanvas*canvas);
+void sc_canvas_toolmenu_position_dispose(SCCanvas*canvas);
+
+
+
 #endif

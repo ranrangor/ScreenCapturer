@@ -12,6 +12,8 @@
 
 static SCCanvas* ref_canvas;
 #define BUF_SIZE 100
+#define MENU_GAP 2
+#define DECORATED_BORDER 5
 
 #define X 0
 #define Y 1
@@ -32,6 +34,15 @@ enum{
 
 
 
+enum{
+    MENU_GEO_UPPER,
+    MENU_GEO_TOP,
+    MENU_GEO_BOTTOM,
+    TOOLMENU_GEO_UP,
+    TOOLMENU_GEO_DOWN,
+    N_MENU_GEOMETRY
+
+};
 
 
 
@@ -53,16 +64,19 @@ struct _SCCanvasPriv{
     GdkWindow*menuwindow;
     GdkRectangle menu_position;
     int menu_dragpos[XY];
+    int menu_geometry;
 
     GtkWidget*toolmenu;//GtkBox
     GdkWindow*toolmenuwindow;
     GdkRectangle toolmenu_position;
     int tolmenu_dragpos[XY];
+    int toolmenu_geometry;
 
     GtkWidget*operable_box;
     guint show_menu:1;
     guint show_toolmenu:1;
     guint menu_drag:1;
+    guint menu_has_disposed:1;
 
 
 };
@@ -87,6 +101,8 @@ static gboolean sc_canvas_popupmenu(GtkWidget* widget);
 static void sc_canvas_map(GtkWidget*widget);
 static void sc_canvas_unmap(GtkWidget*widget);
 
+static gboolean menu_position_has_disposed(SCCanvas*canvas);
+static void menu_position_set_disposed(SCCanvas*canvas);
 
 //static void sc_canvas_add(GtkContainer*container,GtkWidget*w);
 //static void sc_canvas_remove(GtkContainer*container,GtkWidget*w);
@@ -175,6 +191,7 @@ static void sc_canvas_init(SCCanvas* scobj)
 //    priv->current_pixbuf=0;
     priv->operator=NULL;
     priv->menu=NULL;
+    priv->menu_has_disposed=FALSE;
     priv->show_menu=TRUE;
 
     priv->last_toggled=-1;
@@ -422,6 +439,7 @@ static void sc_canvas_unrealize(GtkWidget*widget)
 static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
 {
 
+    SCCanvas*canvas=SC_CANVAS(widget);
     SCCanvasPriv* priv=SC_CANVAS(widget)->priv;
     
     gtk_widget_set_allocation(widget,allocation);
@@ -458,28 +476,31 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
     GtkAllocation toolmenuA;
 
 
+
     if(priv->menu)
     {
-        /*
-        if(!priv->show_menu && gdk_window_is_visible(priv->menuwindow)){
-            gdk_window_hide(priv->menuwindow);
-            gdk_window_hide(priv->toolmenuwindow);
-            return;
-        }
-        if(priv->show_menu && !gdk_window_is_visible(priv->menuwindow)){
-            gdk_window_show(priv->menuwindow);
-            gdk_window_show(priv->toolmenuwindow);
 
-        }
-*/
         g_message("Allocate menu_window");
-        gtk_widget_get_preferred_size(priv->menu,&menuR,NULL);
+//        gtk_widget_get_preferred_size(priv->menu,&menuR,NULL);
+
+    if(!menu_position_has_disposed(canvas))
+        sc_canvas_menu_position_dispose(SC_CANVAS(widget));
+    
+    menuA.x=0;//allocation->x;
+    menuA.y=0;//allocation->y;
+    menuA.width=priv->menu_position.width;
+    menuA.height=priv->menu_position.height;
+
 
     gdk_window_move_resize(priv->menuwindow,
             priv->menu_position.x, priv->menu_position.y,
-            menuR.width, menuR.height);
+            priv->menu_position.width, priv->menu_position.height);
     
-    
+
+
+    g_print("menux:%d  menuy:%d  ;\nmenuwidth:%d menuheight:%d\n",priv->menu_position.x,priv->menu_position.y,menuA.width,menuA.height);
+    gtk_widget_size_allocate(priv->menu,&menuA);
+/* 
     menuA.x=0;//allocation->x;
     menuA.y=0;//allocation->y;
     menuA.width=menuR.width;
@@ -489,6 +510,8 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
     priv->menu_position.height=menuA.height;
 
     gtk_widget_size_allocate(priv->menu,&menuA);
+*/
+
     }
 
     if(priv->toolmenu){
@@ -496,14 +519,22 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
         g_message("Allocate toolmenu_window");
         gtk_widget_get_preferred_size(priv->toolmenu,&toolmenuR,NULL);
 
-    priv->toolmenu_position.x=priv->menu_position.x+5;
-    priv->toolmenu_position.y=priv->menu_position.y+menuR.height+2;
+    sc_canvas_toolmenu_position_dispose(canvas);
+//    priv->toolmenu_position.x=priv->menu_position.x+5;
+//    priv->toolmenu_position.y=priv->menu_position.y+menuR.height+MENU_GAP;
 
     gdk_window_move_resize(priv->toolmenuwindow,
             priv->toolmenu_position.x, priv->toolmenu_position.y,
-            toolmenuR.width, toolmenuR.height);
+            priv->toolmenu_position.width, priv->toolmenu_position.height);
     
-    
+    toolmenuA.x=0;//allocation->x;
+    toolmenuA.y=0;//allocation->y;
+    toolmenuA.width=priv->toolmenu_position.width;
+    toolmenuA.height=priv->toolmenu_position.height;
+
+    g_print("toolmenux:%d  toolmenuy:%d  ;\ntoolmenuwidth:%d toolmenuheight:%d\n",priv->toolmenu_position.x,priv->toolmenu_position.y,toolmenuA.width,toolmenuA.height);
+    gtk_widget_size_allocate(priv->toolmenu,&toolmenuA);
+/*    
     toolmenuA.x=0;//allocation->x;
     toolmenuA.y=0;//allocation->y;
     toolmenuA.width=toolmenuR.width;
@@ -513,7 +544,7 @@ static void sc_canvas_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
     priv->toolmenu_position.height=toolmenuA.height;
 
     gtk_widget_size_allocate(priv->toolmenu,&toolmenuA);
-    
+*/  
     }
 
 }
@@ -803,7 +834,7 @@ void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op)
         g_print("Operator is SCText:[%x]\n",priv->operator);
 
         //take snap;
-       SCText*text=priv->operator; 
+       SCText*text=SC_TEXT(priv->operator); 
         FloatBorder*fb=FLOAT_BORDER(text);
  
         float_border_show_border(fb,FALSE);
@@ -1374,6 +1405,7 @@ void sc_canvas_show_toolmenu(SCCanvas* canvas)
 
     SCCanvasPriv*priv=canvas->priv;
     priv->show_toolmenu=TRUE;
+//    sc_canvas_toolmenu_position_dispose(canvas);
     gdk_window_show(priv->toolmenuwindow);
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
@@ -1563,3 +1595,178 @@ int sc_canvas_operator_get_last_type(SCCanvas*canvas)
     SCCanvasPriv*priv=canvas->priv;
     return priv->last_operator_type;
 }
+
+
+void sc_canvas_get_menu_requisition(SCCanvas*canvas,GtkRequisition*menuR, GtkRequisition*toolmenuR)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+
+    if(priv->menu)
+        gtk_widget_get_preferred_size(priv->menu,menuR,NULL);
+    else{
+        if(menuR){
+            menuR->width=0;
+            menuR->height=0;
+        }
+    }
+    if(priv->toolmenu)
+        gtk_widget_get_preferred_size(priv->toolmenu,toolmenuR,NULL);
+    else{
+        if(toolmenuR){
+            toolmenuR->width=0;
+            toolmenuR->height=0;
+        }
+    }
+//    g_print("    menuR:::\n:: width :%d\n:: height:%d\n",menuR->width,menuR->height);
+//    g_print("toolmenuR:::\n:: width :%d\n:: height:%d\n",toolmenuR->width,toolmenuR->height);
+
+
+}
+
+void sc_canvas_toolmenu_position_dispose(SCCanvas*canvas)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+
+    GtkRequisition menuR, toolmenuR;
+    GtkAllocation menuA, toolmenuA;
+    int swidth,sheight;
+
+
+    sc_window_get_size(SC_WINDOW(priv->appwin),&swidth, &sheight);
+
+
+    gtk_widget_get_preferred_size(priv->toolmenu,&toolmenuR,NULL);
+//    sc_canvas_get_menu_requisition(canvas,NULL,&toolmenuR);
+
+//    gtk_widget_get_allocation(priv->menu,&menuA);
+
+//    gtk_widget_get_allocation(priv->toolmenu,&toolmenuA);
+
+    g_print("TOOLMENU PREFERRED SIZE\nwidth:%d,height:%d\n",toolmenuR.width,toolmenuR.height);
+
+
+    int menux=priv->menu_position.x;
+    int menuy=priv->menu_position.y;
+    int menuwidth=priv->menu_position.width;
+    int menuheight=priv->menu_position.height;
+   
+    g_print("menux:%d  menuy:%d  ;\nmenuwidth:%d menuheight:%d\n",menux,menuy,menuwidth,menuheight);
+
+    g_print("TOOLMENU POSITION DISPOSE\n:if %d < %d.....\n",menuy+menuheight+MENU_GAP+toolmenuR.height,sheight);
+
+
+
+    if(priv->menu_geometry==MENU_GEO_BOTTOM){
+        if(menuy+menuheight+MENU_GAP+toolmenuR.height<sheight){
+            toolmenuA.y=menuy+menuheight+MENU_GAP;
+            priv->toolmenu_geometry=TOOLMENU_GEO_DOWN;
+        }else{
+            toolmenuA.y=menuy-toolmenuR.height-MENU_GAP;
+            priv->toolmenu_geometry=TOOLMENU_GEO_UP;
+        }
+
+    }else if(priv->menu_geometry==MENU_GEO_TOP){
+        if(menuy<toolmenuR.height+MENU_GAP){
+            toolmenuA.y=menuy+menuheight+MENU_GAP;
+            priv->toolmenu_geometry=TOOLMENU_GEO_DOWN;
+        }else{
+            toolmenuA.y=menuy-toolmenuR.height-MENU_GAP;
+            priv->toolmenu_geometry=TOOLMENU_GEO_UP;
+        }
+    
+    }else if(priv->menu_geometry==MENU_GEO_UPPER){
+        toolmenuA.y=menuy+menuheight+MENU_GAP;
+        priv->toolmenu_geometry=TOOLMENU_GEO_DOWN;
+    
+    }else{
+    g_warning("Oh No, I'm got wrong MENU_GEO[%d] here..",priv->menu_geometry);
+    }
+
+    priv->toolmenu_position.x=menux;
+    priv->toolmenu_position.y=toolmenuA.y;
+    priv->toolmenu_position.width=toolmenuA.width=toolmenuR.width;
+    priv->toolmenu_position.height=toolmenuA.height=toolmenuR.height;
+
+    g_print("ALLOCATE\ntoolmenux:%d  toolmenuy:%d  ;\ntoolmenuwidth:%d toolmenuheight:%d\n",menux,toolmenuA.y,toolmenuR.width,toolmenuR.height);
+
+
+}
+
+
+
+void sc_canvas_menu_position_dispose(SCCanvas*canvas)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+
+    int cx,cy,cwidth,cheight;
+    int swidth,sheight;
+
+    g_object_get(G_OBJECT(canvas),"x",&cx,"y",&cy,"width",&cwidth,"height",&cheight,NULL);
+
+    g_print("cx:%d, cy:%d; cwidth:%d, cheight:%d\n",cx,cy,cwidth,cheight);
+
+    GtkRequisition menuR;
+    GtkAllocation menuA;
+
+    sc_window_get_size(SC_WINDOW(priv->appwin),&swidth, &sheight);
+
+
+//    sc_canvas_get_menu_requisition(canvas,&menuR,NULL);
+    gtk_widget_get_preferred_size(priv->menu,&menuR,NULL);
+
+    g_print("%d > %d",sheight-cy-cheight,menuR.height+MENU_GAP);
+
+    if(sheight-(cy+cheight)+DECORATED_BORDER>menuR.height+MENU_GAP){
+    //BOTTOM
+        priv->menu_geometry=MENU_GEO_BOTTOM;
+    
+        g_print("MENU::BOTTOM:\n");
+        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_BORDER,0,swidth-menuR.width);
+        menuA.y=cy+cheight+DECORATED_BORDER;
+    
+    }else if(cy>menuR.height+DECORATED_BORDER){
+    //TOP
+        priv->menu_geometry=MENU_GEO_TOP;
+
+        g_print("MENU::TOP:\n");
+        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_BORDER,0,swidth-menuR.width);
+        menuA.y=cy-menuR.height-DECORATED_BORDER;
+
+    }else{
+    //put menu along with upper screen
+        priv->menu_geometry=MENU_GEO_UPPER;
+        g_print("MENU::ON:\n");
+        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_BORDER,0,swidth-menuR.width);
+        menuA.y=MENU_GAP;
+
+    }
+
+    priv->menu_position.x=menuA.x;
+    priv->menu_position.y=menuA.y;
+    priv->menu_position.width=menuA.width=menuR.width;
+    priv->menu_position.height=menuA.height=menuR.height;
+
+
+    menu_position_set_disposed(canvas);
+
+}
+
+static gboolean menu_position_has_disposed(SCCanvas*canvas)
+{
+    SCCanvasPriv*priv=canvas->priv;
+
+    return priv->menu_has_disposed;
+}
+
+
+static void menu_position_set_disposed(SCCanvas*canvas)
+{
+    SCCanvasPriv*priv=canvas->priv;
+
+    priv->menu_has_disposed=TRUE;
+}
+
+
