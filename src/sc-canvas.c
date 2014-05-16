@@ -40,13 +40,13 @@ struct _SCCanvasPriv{
     GList* pixbufs;
     GtkWidget*appwin;
 
-
     GdkRectangle position;
     
     GtkWidget*operator;
     GdkWindow*window;
 
-//    GtkWidget*popup_menu;
+    GtkWidget*operator_actions[N_OPERATORS];
+    int last_toggled;
 //
     GtkWidget*menu;//GtkBox
     GdkWindow*menuwindow;
@@ -63,9 +63,6 @@ struct _SCCanvasPriv{
     guint show_toolmenu:1;
     guint menu_drag:1;
 
-
-//    SCOperable* registered_operables[N_OPERABLES];
-//    GtkWidget* act_buttons[N_OPERABLES];
 
 };
 
@@ -179,12 +176,13 @@ static void sc_canvas_init(SCCanvas* scobj)
     priv->menu=NULL;
     priv->show_menu=TRUE;
 
+    priv->last_toggled=-1;
 //    priv->menu_position.y=200;
 
 //    priv->popup_menu=sc_canvas_get_popup_menu(scobj);
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
-    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_TOOLBAR);
+    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_NOTEBOOK);
 
 
 }
@@ -532,6 +530,7 @@ static gboolean sc_canvas_draw(GtkWidget* widget,cairo_t*cr)
     gtk_cairo_transform_to_window(cr,widget,priv->menuwindow);
 //    cairo_set_source_rgba(cr,0.9,0.9,0.9,0.9);
     gtk_render_background(sc,cr,0,0,priv->menu_position.width,priv->menu_position.height);
+    gtk_render_frame(sc,cr,0,0,priv->menu_position.width,priv->menu_position.height);
 //    cairo_rectangle(cr,0,0,priv->menu_position.width,priv->menu_position.height);
 //    cairo_fill(cr);
     cairo_restore(cr);
@@ -547,6 +546,7 @@ static gboolean sc_canvas_draw(GtkWidget* widget,cairo_t*cr)
     gtk_cairo_transform_to_window(cr,widget,priv->toolmenuwindow);
 //    cairo_set_source_rgba(cr,0.9,0.9,0.9,0.9);
     gtk_render_background(sc,cr,0,0,priv->toolmenu_position.width,priv->toolmenu_position.height);
+    gtk_render_frame(sc,cr,0,0,priv->toolmenu_position.width,priv->toolmenu_position.height);
 //    cairo_rectangle(cr,0,0,priv->toolmenu_position.width,priv->toolmenu_position.height);
 //    cairo_fill(cr);
     cairo_restore(cr);
@@ -799,10 +799,27 @@ void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op)
 
     sc_canvas_set_child(canvas,&priv->operator,priv->window,op);
     sc_canvas_set_toolmenu(canvas);
+    
 
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
 }
+
+
+
+void sc_canvas_unset_operator(SCCanvas*canvas)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+
+    sc_canvas_set_child(canvas,&priv->operator,priv->window,NULL);
+    sc_canvas_set_toolmenu(canvas);
+
+    gtk_widget_queue_resize(GTK_WIDGET(canvas));
+
+}
+
+
 
 void sc_canvas_set_menu(SCCanvas*canvas,GtkWidget* me)
 {
@@ -820,11 +837,17 @@ void sc_canvas_set_toolmenu(SCCanvas*canvas)
 {
     SCCanvasPriv* priv=canvas->priv;
 
-    if(!priv->operator)
-        return;
+//    if(!priv->operator)
+//        return;
     GtkWidget*toolmenu=sc_operable_obtain_toolmenu(SC_OPERABLE(priv->operator));
     
     sc_canvas_set_child(canvas,&priv->toolmenu,priv->toolmenuwindow,toolmenu);
+    if(!toolmenu)
+        sc_canvas_hide_toolmenu(canvas);
+    else
+        sc_canvas_show_toolmenu(canvas);
+
+    gtk_widget_queue_resize(GTK_WIDGET(canvas));
 }
 
 
@@ -939,6 +962,7 @@ GtkWidget* sc_canvas_get_menu(SCCanvas*canvas)//,GtkWidget*menu)//SCOperator* op
     GtkWidget*item_exit=sc_image_button_new_by_size(icon_exit,20);
 
     GtkWidget*sep=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    gtk_widget_set_size_request(sep,5,-1);
     g_signal_connect(G_OBJECT(item_undo),"clicked",G_CALLBACK(canvas_undo_cb),canvas);
     g_signal_connect(G_OBJECT(item_done),"clicked",G_CALLBACK(canvas_done_cb),canvas);
     g_signal_connect(G_OBJECT(item_save),"clicked",G_CALLBACK(canvas_save_cb),canvas);
@@ -978,7 +1002,7 @@ GtkWidget*sc_canvas_get_popup_menu(SCCanvas*canvas)
     
 GtkWidget*sc_image_text_item_new(const guint8*data,const char*text,int siz);
 */
-    GtkWidget*item_shape=sc_image_text_item_new(icon_shape_circle,"Shape",20);
+    GtkWidget*item_shape=sc_image_text_item_new(icon_shape,"Shape",20);
     GtkWidget*item_arrow=sc_image_text_item_new(icon_arrow,"Arrow",20);
     GtkWidget*item_painter=sc_image_text_item_new(icon_painter,"Painter",20);
     GtkWidget*item_text=sc_image_text_item_new(icon_text,"Text",20);
@@ -1289,8 +1313,11 @@ void sc_canvas_hide_menu(SCCanvas* canvas)
 
     SCCanvasPriv*priv=canvas->priv;
     priv->show_menu=FALSE;
+//    priv->show_toolmenu=FALSE;
     gdk_window_hide(priv->menuwindow);
-    gdk_window_hide(priv->toolmenuwindow);
+//    gdk_window_hide(priv->toolmenuwindow);
+//    if(!priv->toolmenu)
+    sc_canvas_hide_toolmenu(canvas);
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 }
 
@@ -1300,16 +1327,49 @@ void sc_canvas_show_menu(SCCanvas* canvas)
 
     SCCanvasPriv*priv=canvas->priv;
     priv->show_menu=TRUE;
+//    priv->show_toolmenu=TRUE;
     gdk_window_show(priv->menuwindow);
+//    gdk_window_show(priv->toolmenuwindow);
+    if(priv->toolmenu)
+        sc_canvas_show_toolmenu(canvas);
+    gtk_widget_queue_resize(GTK_WIDGET(canvas));
+
+}
+
+
+void sc_canvas_hide_toolmenu(SCCanvas* canvas)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+    priv->show_toolmenu=FALSE;
+    gdk_window_hide(priv->toolmenuwindow);
+    gtk_widget_queue_resize(GTK_WIDGET(canvas));
+}
+
+
+void sc_canvas_show_toolmenu(SCCanvas* canvas)
+{
+
+    SCCanvasPriv*priv=canvas->priv;
+    priv->show_toolmenu=TRUE;
     gdk_window_show(priv->toolmenuwindow);
     gtk_widget_queue_resize(GTK_WIDGET(canvas));
 
 }
 
+
+
+
 gboolean sc_canvas_menu_is_show(SCCanvas* canvas)
 {
-return canvas->priv->show_menu;
+    return canvas->priv->show_menu;
 }
+
+gboolean sc_canvas_toolmenu_is_show(SCCanvas* canvas)
+{
+    return canvas->priv->show_toolmenu;
+}
+
 
 
 
@@ -1428,5 +1488,41 @@ GtkWidget*sc_canvas_get_operable_box(SCCanvas*canvas)
 
 }
 
+
+void sc_canvas_add_operator(SCCanvas*canvas,int id,const guint8*icon,void (*action)(GtkWidget*widget,gpointer))
+{
+
+    GtkWidget*operable_box=sc_canvas_get_operable_box(canvas);
+
+    GtkWidget*shape=sc_image_toggle_button_new_by_size(icon,20);
+    gtk_box_pack_end(GTK_BOX(operable_box),shape,FALSE,FALSE,0);
+    g_signal_connect(G_OBJECT(shape),"toggled",G_CALLBACK(action),canvas);//&info);
+    
+    SCCanvasPriv*priv=canvas->priv;
+
+    priv->operator_actions[id]=shape;
+
+}
+
+
+void sc_canvas_operator_button_reset(SCCanvas*canvas)
+{
+    SCCanvasPriv*priv=canvas->priv;
+ 
+    g_print("Reset..\nlast_toggled::%d\n",priv->last_toggled);
+
+    if(priv->last_toggled!=-1){
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->operator_actions[priv->last_toggled]),FALSE);
+    }
+}
+
+void sc_canvas_operator_toggled(SCCanvas*canvas,int id)
+{
+    g_print("toggle  [%d]\n",id);
+    SCCanvasPriv*priv=canvas->priv;
+
+    priv->last_toggled=id;
+
+}
 
 

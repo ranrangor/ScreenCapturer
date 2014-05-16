@@ -84,7 +84,9 @@ gboolean sc_canvas_save(SCCanvas* canvas);
 void sc_canvas_exit(SCCanvas* canvas);
 void sc_canvas_show_menu(SCCanvas* canvas);
 void sc_canvas_hide_menu(SCCanvas* canvas);
-gboolean sc_canvas_menu_is_show(SCCanvas* canvas);
+void sc_canvas_show_toolmenu(SCCanvas* canvas);
+void sc_canvas_hide_toolmenu(SCCanvas* canvas);
+gboolean sc_canvas_toolmenu_is_show(SCCanvas* canvas);
 
 
 void sc_canvas_do_popup_menu(GtkWidget*widget, GdkEventButton* event);
@@ -102,9 +104,13 @@ void canvas_xmenu_act(GtkWidget* widget, gpointer d);
 void sc_canvas_set_toolmenu(SCCanvas*canvas);
 void sc_canvas_set_menu(SCCanvas*canvas,GtkWidget* me);
 void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op);
+void sc_canvas_unset_operator(SCCanvas*canvas);
 
 GtkWidget*sc_canvas_get_operable_box(SCCanvas*canvas);
 
+void sc_canvas_add_operator(SCCanvas*canvas,int id,const guint8*icon,void (*action)(GtkWidget*widget,gpointer));
 
+void sc_canvas_operator_button_reset(SCCanvas*canvas);
+void sc_canvas_operator_toggled(SCCanvas*canvas,int id);
 
 #endif
