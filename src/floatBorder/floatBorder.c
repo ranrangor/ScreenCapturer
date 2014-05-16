@@ -450,7 +450,7 @@ static FloatBorderChild*get_child_by_widget(FloatBorder*fb,GtkWidget*w)
     if(fbchild)
         return fbchild;
 */
-    g_message("---->widget[%x] not cached",w);
+//    g_message("---->widget[%x] not cached",w);
     GList*children;
 
     children=priv->children;
@@ -489,7 +489,7 @@ static FloatBorderChild*get_child_by_window(FloatBorder*fb,GdkWindow*window)
     if(fbchild)
         return fbchild;
 */
-    g_message("---->window[%x] not cached",window);
+//    g_message("---->window[%x] not cached",window);
     GList*list;
     for (list=priv->children;list;list=list->next){
     

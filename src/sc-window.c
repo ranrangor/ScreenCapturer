@@ -49,6 +49,7 @@ static gboolean sc_window_button_press(GtkWidget*widget,GdkEventButton*e);
 static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e);
 
 static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr);
+static void sc_window_show(GtkWidget*widget);
 
 
 static gboolean point_in_rect(GdkRectangle*rect,int x,int y)
@@ -84,7 +85,7 @@ static void sc_window_class_init(SCWindowClass* klass)
     wklass->button_press_event=sc_window_button_press;
     wklass->button_release_event=sc_window_button_release;
 
-
+//    wklass->show=sc_window_show;
 
 
     g_type_class_add_private(klass,sizeof(SCWindowPriv));
@@ -461,7 +462,21 @@ draw_childrens:
 
 
 
+/*
+static void sc_window_show(GtkWidget*widget)
+{
 
+ GTK_WIDGET_CLASS(sc_window_parent_class)->show(widget);
+
+ GdkWindow*window=gtk_widget_get_window(widget);
+ while (gdk_keyboard_grab(window, FALSE, GDK_CURRENT_TIME) != GDK_GRAB_SUCCESS) {
+        
+        g_print("While grab...\n");
+     }
+
+
+}
+*/
 
 
 void sc_window_setup(SCWindow*scwin)
@@ -474,10 +489,12 @@ void sc_window_setup(SCWindow*scwin)
     GtkWindow*win=GTK_WINDOW(scwin);
     GtkWidget*widget=GTK_WIDGET(scwin);
 
+//    gtk_window_set_focus_on_map(win,TRUE);
+//    gtk_window_activate_focus(win);
+//    gtk_widget_grab_focus(widget);
+
 //    gtk_window_set_decorated(win,FALSE);
-
-
-//    gtk_window_set_type_hint(win,GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+//    gtk_window_set_type_hint(win,GDK_WINDOW_TYPE_HINT_NORMAL);
 
 //    gtk_window_maximize(win);
 //    gtk_window_move(win,0,0);
