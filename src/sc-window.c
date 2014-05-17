@@ -5,14 +5,7 @@
 #include"sc-operators.h"
 #include<gdk-pixbuf/gdk-pixbuf.h>
 #include<time.h>
-
-#define VIEW_Width 120
-#define VIEW_Height 80
-#define VIEW_Detail 30
-#define SCALE 5
-#define VIEW_bias 10
-
-
+#include"../config.h"
 
 
 time_t Timeval;
@@ -24,14 +17,21 @@ struct _SCWindowPriv{
     GtkWidget*canvas;
 //    GtkWidget*fixed;
     GdkWindow*root_win;
+    //root window's size
+    int root_width,root_height;
+    
     //list of windows
     GList*rects;
     //number of windows;
     GdkRectangle current_rect;
     GdkRectangle saved_rect;
+    GdkRectangle preview_position;
+    int preview_desc_height;
+    //current pointer poisition
+    int px,py;
+
 //    time_t timeval;
     int n_rects;
-    int px,py;
     gint rect_selected:1;
     gint button_down:1;
     gint moved :1;
@@ -49,7 +49,9 @@ static gboolean sc_window_button_press(GtkWidget*widget,GdkEventButton*e);
 static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e);
 
 static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr);
-static void sc_window_show(GtkWidget*widget);
+//static void sc_window_show(GtkWidget*widget);
+
+static void preview_position_dispose(SCWindow*scwin);
 
 
 static gboolean point_in_rect(GdkRectangle*rect,int x,int y)
@@ -108,6 +110,10 @@ static void sc_window_init(SCWindow* scwin)
     priv->n_rects=0;
     priv->rects=NULL;
     priv->canvas=NULL;
+
+    priv->preview_desc_height=PREVIEW_DESC_HEIGHT;
+    priv->preview_position.width=PREVIEW_WIDTH;
+    priv->preview_position.height=PREVIEW_HEIGHT;
 
     sc_window_setup(scwin);
 
@@ -247,6 +253,8 @@ static gboolean sc_window_motion(GtkWidget*widget,GdkEventMotion*e)
 
     }else if(!priv->rect_selected){
         get_rect_under_pointer(scwin,(int)e->x,(int)e->y);
+        //Dispose preview position.
+        preview_position_dispose(scwin);
 
     }else{
     //do nothing.
@@ -262,8 +270,6 @@ static gboolean sc_window_motion(GtkWidget*widget,GdkEventMotion*e)
 
 static gboolean sc_window_button_press(GtkWidget*widget,GdkEventButton*e)
 {
-
-    g_message("Button Press");
 
     SCWindowPriv*priv=SC_WINDOW(widget)->priv;
 
@@ -286,8 +292,6 @@ static gboolean sc_window_button_press(GtkWidget*widget,GdkEventButton*e)
 static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
 {
 
-    g_message("Button Release");
-
     SCWindowPriv*priv=SC_WINDOW(widget)->priv;
 
 
@@ -305,9 +309,7 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
                 priv->current_rect.width,
                 priv->current_rect.height);
        
-
     sc_canvas_register_operables(SC_CANVAS(priv->canvas),widget);
-
     gtk_container_add(GTK_CONTAINER(widget),priv->canvas);
 
     gtk_widget_show_all(priv->canvas);
@@ -317,11 +319,10 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e)
     if(e->type==GDK_BUTTON_RELEASE && e->button==GDK_BUTTON_SECONDARY){
     
         if(priv->rect_selected && !point_in_rect(&priv->current_rect,(int)e->x,(int)e->y)){
+
+            g_message("RESELECT");
             sc_window_reselect(SC_WINDOW(widget));
-//            priv->rect_selected=FALSE;
-//Remove SCCanvas from SCWindow.
-//            gtk_container_remove(GTK_CONTAINER(widget),priv->canvas);
-//            g_message("SCCanvas Removed! To ReSelect Region.");
+
         }else
         if(!priv->rect_selected){
            
@@ -348,7 +349,7 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
 
   
     GdkRectangle*cur_rect=&priv->current_rect;
-
+//Draw Background Pixbuf
     gdk_cairo_set_source_pixbuf(cr,priv->fullpf,0,0);
     cairo_paint(cr);
 
@@ -376,107 +377,139 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
     cairo_restore(cr);
 
     // Current rectangle's Decorator
-    cairo_set_source_rgba(cr,0,0.9,0.0,0.9);
-    cairo_set_line_width(cr,SCALE);
 
-    cairo_rectangle(cr,
-            cur_rect->x-SCALE/2-0.05, cur_rect->y-SCALE/1.9-0.05,
-            cur_rect->width+SCALE+0.1, cur_rect->height+SCALE+0.1);
-    cairo_stroke(cr);
+    if(!priv->rect_selected){
 
+        cairo_set_source_rgba(cr,0,0.9,0.0,0.9);
+        cairo_set_line_width(cr,DECORATED_BORDER);
+    
+        cairo_rectangle(cr,
+                cur_rect->x-DECORATED_BORDER/2.0-0.05, cur_rect->y-DECORATED_BORDER/2.0-0.05,
+                cur_rect->width+DECORATED_BORDER+0.1, cur_rect->height+DECORATED_BORDER+0.1);
+        cairo_stroke(cr);
+    
 
-    cairo_set_source_rgba(cr,0,0.3,0.9,0.8);
-    cairo_set_line_width(cr,SCALE);
+    }else{
+        cairo_set_source_rgba(cr,0,0.8,0.8,0.9);
+        int NBORDER=DECORATED_SBORDER;
+        cairo_set_line_width(cr,NBORDER);
+    
+        cairo_rectangle(cr,
+                cur_rect->x-NBORDER/2.0-0.05, cur_rect->y-NBORDER/2.0-0.05,
+                cur_rect->width+NBORDER+0.1, cur_rect->height+NBORDER+0.1);
+        cairo_stroke(cr);
 
-
-
-
-
-if(priv->rect_selected)
-    goto draw_childrens;
+        goto draw_childrens;
+    }
 
 
 /* Draw Preview Area*/
 
-    GdkPixbuf *pfview=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,VIEW_Width,VIEW_Height);
+//    GdkPixbuf *pfview=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,VIEW_Width,VIEW_Height);
+    GdkPixbuf *pfview=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,priv->preview_position.width,priv->preview_position.height);
 
-    gdk_pixbuf_scale(priv->fullpf,pfview,0,0,VIEW_Width,VIEW_Height,
-            -priv->px*SCALE+VIEW_Width/2, -priv->py*SCALE+VIEW_Height/2,
-            SCALE,SCALE,GDK_INTERP_TILES);
+    gdk_pixbuf_scale(priv->fullpf,pfview,0,0,priv->preview_position.width,priv->preview_position.height,
+            -priv->px*PREV_SCALE+priv->preview_position.width/2.0, -priv->py*PREV_SCALE+priv->preview_position.height/2.0,
+            PREV_SCALE,PREV_SCALE,GDK_INTERP_TILES);
 
+    cairo_rectangle(cr,priv->preview_position.x, priv->preview_position.y,
+            priv->preview_position.width, priv->preview_position.height);
 
-
-    cairo_rectangle(cr,priv->px+VIEW_bias,priv->py+VIEW_bias,VIEW_Width,VIEW_Height);
-
-
-    cairo_set_source_rgba(cr,0,0,0,0.8);
-    cairo_set_line_width(cr,1);
-
+    cairo_set_source_rgba(cr,0.8,0,0.6,1);
+    cairo_set_line_width(cr,2);
     cairo_stroke_preserve(cr);
-    gdk_cairo_set_source_pixbuf(cr,pfview,priv->px+VIEW_bias,priv->py+VIEW_bias);
+
+    gdk_cairo_set_source_pixbuf(cr,pfview,priv->preview_position.x,priv->preview_position.y);
     cairo_fill(cr);
 
-
-    cairo_set_source_rgba(cr,0,1,1,0.4);
-    cairo_set_line_width(cr,SCALE);
-    cairo_move_to(cr,priv->px+VIEW_bias+VIEW_Width/2,priv->py+VIEW_bias);
-    cairo_line_to(cr,priv->px+VIEW_bias+VIEW_Width/2,priv->py+VIEW_bias+VIEW_Height);
+    cairo_rectangle(cr,priv->preview_position.x+1,priv->preview_position.y+1,
+            priv->preview_position.width-2,priv->preview_position.height-2);
+    cairo_set_source_rgba(cr,1,1,1,1);
+    cairo_set_line_width(cr,1);
     cairo_stroke(cr);
 
-    cairo_move_to(cr,priv->px+VIEW_bias, priv->py+VIEW_bias+VIEW_Height/2);
-    cairo_line_to(cr,priv->px+VIEW_bias+VIEW_Width,priv->py+VIEW_bias+VIEW_Height/2);
+    //Draw Crossing
+    cairo_set_source_rgba(cr,0,1,1,0.4);
+    cairo_set_line_width(cr,PREV_SCALE);
+
+    cairo_move_to(cr,priv->preview_position.x+priv->preview_position.width/2.0, priv->preview_position.y);
+    cairo_line_to(cr,priv->preview_position.x+priv->preview_position.width/2.0,priv->preview_position.y+priv->preview_position.height);
+    cairo_stroke(cr);
+
+    cairo_move_to(cr,priv->preview_position.x, priv->preview_position.y+priv->preview_position.height/2.0);
+    cairo_line_to(cr,priv->preview_position.x+priv->preview_position.width,  priv->preview_position.y+priv->preview_position.height/2.0);
     cairo_stroke(cr);
 
 /* Draw Detail Area*/
     //draw frame
-    cairo_rectangle(cr,priv->px+VIEW_bias,priv->py+VIEW_bias+VIEW_Height,VIEW_Width,VIEW_Detail);
-    cairo_set_source_rgba(cr,0,0,0,0.8);
-    cairo_set_line_width(cr,1);
-//    cairo_stroke_preserve(cr);
+    cairo_rectangle(cr,priv->preview_position.x, priv->preview_position.y+priv->preview_position.height,
+            priv->preview_position.width, priv->preview_desc_height);
+    cairo_set_source_rgba(cr,0.8,0,0.6,1);
+    cairo_set_line_width(cr,2);
+    cairo_stroke_preserve(cr);
 
-    cairo_set_source_rgba(cr,0,0,0,0.7);
+    cairo_set_source_rgba(cr,0,0.2,0,0.7);
     cairo_fill(cr);
     //draw desc
     cairo_select_font_face(cr,"Sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr,10);
+    cairo_set_font_size(cr,12);
     cairo_set_source_rgb(cr,1,0,0);
-    gchar*desc=g_strdup_printf(" %dx%d ",cur_rect->width,cur_rect->height);
-    cairo_move_to(cr,priv->px+VIEW_bias, priv->py+VIEW_bias+VIEW_Height+10);
+    gchar*desc=g_strdup_printf(" [%dx%d] ",cur_rect->width,cur_rect->height);
+    
+    cairo_move_to(cr,priv->preview_position.x,priv->preview_position.y+priv->preview_position.height+12);
     cairo_show_text(cr,desc);
     g_free(desc);
 
-//    cairo_restore(cr);
 
 
 draw_childrens:
 
     GTK_WIDGET_CLASS(sc_window_parent_class)->draw(widget,cr);
-//    gtk_container_propagate_draw(GTK_CONTAINER(widget),priv->fixed,cr);
 
-//    g_message("window DRAW()");
 
-//   return TRUE; 
     return FALSE;
 
 }
 
 
-
-/*
-static void sc_window_show(GtkWidget*widget)
+static void preview_position_dispose(SCWindow*scwin)
 {
 
- GTK_WIDGET_CLASS(sc_window_parent_class)->show(widget);
+    SCWindowPriv*priv=scwin->priv;
 
- GdkWindow*window=gtk_widget_get_window(widget);
- while (gdk_keyboard_grab(window, FALSE, GDK_CURRENT_TIME) != GDK_GRAB_SUCCESS) {
+
+    if(priv->px+PREVIEW_BIAS+PREVIEW_WIDTH < priv->root_width){
+    //RIGHT
+    
+        priv->preview_position.x=priv->px+PREVIEW_BIAS;
+
+        if(priv->py+PREVIEW_BIAS+PREVIEW_TOTAL_HEIGHT<priv->root_height){
+        //BOTTOM
+            priv->preview_position.y=priv->py+PREVIEW_BIAS;
+        }else{
+        //TOP
+            priv->preview_position.y=priv->py-PREVIEW_BIAS-PREVIEW_TOTAL_HEIGHT;
         
-        g_print("While grab...\n");
-     }
+        }
 
+    
+    }else{
+    //LEFT
+    
+        priv->preview_position.x=priv->px-PREVIEW_BIAS-PREVIEW_WIDTH;
+
+        if(priv->py+PREVIEW_BIAS+PREVIEW_TOTAL_HEIGHT<priv->root_height){
+        //BOTTOM
+            priv->preview_position.y=priv->py+PREVIEW_BIAS;
+        }else{
+        //TOP
+            priv->preview_position.y=priv->py-PREVIEW_BIAS-PREVIEW_TOTAL_HEIGHT;
+        
+        }
+    
+    }
 
 }
-*/
 
 
 void sc_window_setup(SCWindow*scwin)
@@ -489,29 +522,25 @@ void sc_window_setup(SCWindow*scwin)
     GtkWindow*win=GTK_WINDOW(scwin);
     GtkWidget*widget=GTK_WIDGET(scwin);
 
-//    gtk_window_set_focus_on_map(win,TRUE);
-//    gtk_window_activate_focus(win);
-//    gtk_widget_grab_focus(widget);
+    gtk_window_set_decorated(win,FALSE);
 
-//    gtk_window_set_decorated(win,FALSE);
-//    gtk_window_set_type_hint(win,GDK_WINDOW_TYPE_HINT_NORMAL);
-
-//    gtk_window_maximize(win);
-//    gtk_window_move(win,0,0);
     gtk_window_fullscreen(win);
-//    g_object_set(win,"type",GTK_WINDOW_POPUP,NULL);
     gtk_window_set_keep_above(win,TRUE);
-
 
     gtk_widget_add_events(widget,GDK_POINTER_MOTION_MASK|GDK_BUTTON_RELEASE_MASK);
 
     screen=gtk_widget_get_screen(widget);
-//gtk_widget_set_size_request(widget,gdk_screen_get_width(screen),
-//        gdk_screen_get_height(screen));
+    
+    priv->root_width=gdk_screen_get_width(screen);
+    priv->root_height=gdk_screen_get_height(screen);
+
+
+    g_print("window::Width  :%d\nwindow:Height :%d\n",priv->root_width,priv->root_height);
+
 
     priv->root_win=gdk_screen_get_root_window(screen);
 
-   priv->fullpf=gdk_pixbuf_get_from_window(priv->root_win,0,0,
+    priv->fullpf=gdk_pixbuf_get_from_window(priv->root_win,0,0,
            gdk_window_get_width(priv->root_win),
            gdk_window_get_height(priv->root_win));
 
@@ -520,15 +549,22 @@ void sc_window_setup(SCWindow*scwin)
     GdkRGBA color={0,0,0,0};
     gtk_widget_override_background_color(widget,0,&color);
 
-/*
-    priv->canvas=sc_canvas_new(priv->current_rect.x,
-                priv->current_rect.y,
-                priv->current_rect.width,
-                priv->current_rect.height);
 
-    priv->fixed=gtk_fixed_new();
-    gtk_container_add(GTK_CONTAINER(scwin),priv->canvas);
-*/
+    
+    //get current pointer position
+
+
+    GdkDisplay*display=gdk_display_get_default();
+    GdkDeviceManager* dm=gdk_display_get_device_manager(display);
+
+    GdkDevice*dev=gdk_device_manager_get_client_pointer(dm);
+
+    gdk_device_get_position(dev,NULL,&priv->px,&priv->py);
+
+    g_message("Current Pointer Position [%d,%d]",priv->px,priv->py);
+
+    preview_position_dispose(scwin);
+    get_rect_under_pointer(scwin,priv->px,priv->py);
 
 }
 
@@ -576,3 +612,15 @@ void sc_window_exit(SCWindow*win)
     g_application_quit(G_APPLICATION(app));
 }
 
+
+void sc_window_get_size(SCWindow*win,int *width, int* height)
+{
+
+    SCWindowPriv*priv = win->priv;
+
+    if(width)
+        *width=priv->root_width;
+    if(height)
+        *height=priv->root_height;
+
+}

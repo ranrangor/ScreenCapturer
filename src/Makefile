@@ -22,10 +22,10 @@ main.o:main.c
 sc-app.o: sc-app.c sc-app.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-sc-window.o: sc-window.c sc-window.h
+sc-window.o: sc-window.c sc-window.h ../config.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-sc-canvas.o: sc-canvas.c sc-canvas.h
+sc-canvas.o: sc-canvas.c sc-canvas.h ../config.h
 	${CC} ${CFLAGS} -c $< -o $@
 
 sc-operators.o: sc-operators.c sc-operators.h

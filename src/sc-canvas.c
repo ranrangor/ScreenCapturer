@@ -7,18 +7,10 @@
 #include"sc-shape.h"
 #include"sc-text.h"
 #include"sc-utils.h"
-
+#include"../config.h"
 
 
 static SCCanvas* ref_canvas;
-#define BUF_SIZE 100
-#define MENU_GAP 2
-#define DECORATED_BORDER 5
-
-#define X 0
-#define Y 1
-#define XY 2
-
 
 
 enum{
@@ -1494,27 +1486,27 @@ void sc_canvas_menu_position_dispose(SCCanvas*canvas)
     gtk_widget_get_preferred_size(priv->menu,&menuR,NULL);
 
 
-    if(sheight-(cy+cheight)+DECORATED_BORDER>menuR.height+MENU_GAP){
+    if(sheight-(cy+cheight)+DECORATED_SBORDER>menuR.height+MENU_GAP){
     //BOTTOM
         priv->menu_geometry=MENU_GEO_BOTTOM;
     
 //        g_print("MENU::BOTTOM:\n");
-        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_BORDER,0,swidth-menuR.width);
-        menuA.y=cy+cheight+DECORATED_BORDER;
+        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_SBORDER,0,swidth-menuR.width);
+        menuA.y=cy+cheight+DECORATED_SBORDER;
     
-    }else if(cy>menuR.height+DECORATED_BORDER){
+    }else if(cy>menuR.height+DECORATED_SBORDER){
     //TOP
         priv->menu_geometry=MENU_GEO_TOP;
 
 //        g_print("MENU::TOP:\n");
-        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_BORDER,0,swidth-menuR.width);
-        menuA.y=cy-menuR.height-DECORATED_BORDER;
+        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_SBORDER,0,swidth-menuR.width);
+        menuA.y=cy-menuR.height-DECORATED_SBORDER;
 
     }else{
     //put menu along with upper screen
         priv->menu_geometry=MENU_GEO_UPPER;
 //        g_print("MENU::ON:\n");
-        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_BORDER,0,swidth-menuR.width);
+        menuA.x=CLAMP(cx+cwidth-menuR.width+DECORATED_SBORDER,0,swidth-menuR.width);
         menuA.y=MENU_GAP;
     }
 
