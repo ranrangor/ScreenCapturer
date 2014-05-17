@@ -15,8 +15,7 @@
 
 
 
-
-
+typedef struct _SCCanvas SCCanvas;
 
 
 typedef struct _scOperable SCOperable;
@@ -29,13 +28,11 @@ typedef struct _scOperableIface{
 
     /* member */
     SCCanvas* canvas;
-    GtkWidget* toolbutton;
     GtkWidget* toolmenu;
 
 
     /* virtual functions */
     GtkWidget* (*obtain_toolmenu) (SCOperable* operable);
-    GtkWidget* (*get_toolbutton) (SCOperable* operable);
 
 
 }SCOperableInterface;

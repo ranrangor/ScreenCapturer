@@ -31,8 +31,11 @@ N_OPERABLES
 
 
 
+typedef struct _scOperable SCOperable;
 typedef struct _SCCanvasPriv SCCanvasPriv;
 
+
+//typedef struct _SCCanvas SCCanvas;
 
 typedef struct _SCCanvas{
 
@@ -71,22 +74,23 @@ void sc_canvas_set_appwin(SCCanvas*canvas,GtkWidget*appwin);
 GtkWidget* sc_canvas_get_menu(SCCanvas*canvas);
 GtkWidget* sc_canvas_get_popup_menu(SCCanvas*canvas);
 GtkWidget* sc_canvas_get_operator(SCCanvas*canvas);
-//void sc_canvas_show_menu(SCCanvas* canvas);
-//void sc_canvas_hide_menu(SCCanvas* canvas);
 
-GtkWidget* sc_canvas_set_operater(SCCanvas*canvas, GtkWidget*operable, int pos);
+//GtkWidget* sc_canvas_set_operater(SCCanvas*canvas, GtkWidget*operable, int pos);
 
-//void sc_canvas_take_shot(SCCanvas*canvas);
 void sc_canvas_step_done(SCCanvas* canvas);
 void sc_canvas_undo(SCCanvas* canvas);
 void sc_canvas_done(SCCanvas* canvas);
 gboolean sc_canvas_save(SCCanvas* canvas);
 void sc_canvas_exit(SCCanvas* canvas);
+
+
 void sc_canvas_show_menu(SCCanvas* canvas);
 void sc_canvas_hide_menu(SCCanvas* canvas);
+
 void sc_canvas_show_toolmenu(SCCanvas* canvas);
 void sc_canvas_hide_toolmenu(SCCanvas* canvas);
-gboolean sc_canvas_toolmenu_is_show(SCCanvas* canvas);
+gboolean sc_canvas_is_toolmenu_show(SCCanvas* canvas);
+gboolean sc_canvas_is_toolmenu_set(SCCanvas*canvas);
 
 
 void sc_canvas_do_popup_menu(GtkWidget*widget, GdkEventButton* event);
@@ -102,13 +106,15 @@ void canvas_xmenu_act(GtkWidget* widget, gpointer d);
 //void sc_canvas_reset(SCCanvas*canvas,GtkWidget*w);
 
 void sc_canvas_set_toolmenu(SCCanvas*canvas);
+void sc_canvas_unset_toolmenu(SCCanvas*canvas);
 void sc_canvas_set_menu(SCCanvas*canvas,GtkWidget* me);
-void sc_canvas_set_operator(SCCanvas*canvas,GtkWidget* op);
+void sc_canvas_set_operator(SCCanvas*canvas,SCOperable* op);
 void sc_canvas_unset_operator(SCCanvas*canvas);
 
 GtkWidget*sc_canvas_get_operable_box(SCCanvas*canvas);
 
 void sc_canvas_add_operator(SCCanvas*canvas,int id,const guint8*icon,void (*action)(GtkWidget*widget,gpointer));
+void sc_canvas_remove_operator(SCCanvas*canvas,int id);
 
 void sc_canvas_operator_button_reset(SCCanvas*canvas);
 void sc_canvas_operator_toggled(SCCanvas*canvas,int id);
