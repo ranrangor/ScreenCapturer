@@ -18,10 +18,9 @@
 typedef struct _SCLine{
 
     GtkWidget parent;
-
     GdkWindow* event_window;
 
-    int line_type;
+//    int line_type;
 //    GdkRectangle rectangle;
     int x0,y0;
     int x1,y1;

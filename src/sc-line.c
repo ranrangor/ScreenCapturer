@@ -2,7 +2,8 @@
 #include"sc-operable.h"
 #include<math.h>
 #include<gtk/gtk.h>
-
+#include"menus/sc-widthsetter.h"
+#include"menus/sc-colorchooser.h"
 
 
 
@@ -35,43 +36,29 @@ static void sc_line_size_allocate(GtkWidget*widget,GtkAllocation* alloc);
 
 
 
-static void but2_clicked(GtkWidget*widget,SCOperable*operable)
+
+
+GtkWidget*line_obtain_toolmenu(SCOperable*operable)
 {
 
     SCLine*line=SC_LINE(operable);
-    line->line_width=2;
-}
+
+    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+    GtkWidget*color=sc_color_chooser_new();
+    GtkWidget*width=sc_width_setter_new(3);
+
+    gtk_box_pack_start(GTK_BOX(box),width,FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(box),color,FALSE,FALSE,0);
+
+    line->colorchooser=color;
+    line->widthsetter=width;
+    g_object_ref(color);
+    g_object_ref(width);
 
 
-static void but5_clicked(GtkWidget*widget,SCOperable*operable)
-{
-
-    SCLine*line=SC_LINE(operable);
-    line->line_width=5;
-
-}
-
-
-
-
-
-GtkWidget*line_obtain_menu(SCOperable*operable)
-{
-
-    GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
-    GtkWidget*but_2=gtk_button_new_with_label("2");
-    GtkWidget*but_5=gtk_button_new_with_label("5");
-
-    g_signal_connect(G_OBJECT(but_2),"clicked",G_CALLBACK(but2_clicked),operable);
-    g_signal_connect(G_OBJECT(but_5),"clicked",G_CALLBACK(but5_clicked),operable);
-
-
-    gtk_box_pack_start(GTK_BOX(box),but_2,FALSE,FALSE,0);
-    gtk_box_pack_start(GTK_BOX(box),but_5,FALSE,FALSE,0);
-
-    gtk_widget_show(but_2);
-    gtk_widget_show(but_5);
-    gtk_widget_show(box);
+//    gtk_widget_show(color);
+//    gtk_widget_show(width);
+//    gtk_widget_show(box);
 
     return box;
 
@@ -86,7 +73,7 @@ static void sc_operable_interface_init(SCOperableInterface* iface)
 //    iface->
 //    iface->toolmenu=create_line_tool_menu();
 
-    iface->obtain_menu=line_obtain_menu;
+    iface->obtain_toolmenu=line_obtain_toolmenu;
 
 }
 
@@ -172,11 +159,12 @@ static void sc_line_realize(GtkWidget*widget)
         GDK_BUTTON_RELEASE_MASK;
 
 
-    attributes_mask=GDK_WA_X|GDK_WA_Y;
-
-
+    attributes.cursor=gdk_cursor_new(GDK_PENCIL);
+    attributes_mask=GDK_WA_X|GDK_WA_Y|GDK_WA_CURSOR;
 
     event_window=gdk_window_new(parent_window,&attributes,attributes_mask);
+
+    g_object_unref(attributes.cursor);
 
     gtk_widget_register_window(widget,event_window);
 
@@ -249,6 +237,8 @@ static gboolean sc_line_draw(GtkWidget*widget, cairo_t*cr)
     int width=gtk_widget_get_allocated_width(widget);
     int height =gtk_widget_get_allocated_height(widget);
 
+    line->line_width=sc_width_setter_get_value();
+    
     cairo_set_line_width(cr,line->line_width);
     
     cairo_set_source_rgba(cr,1,0,0,1);
