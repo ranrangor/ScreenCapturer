@@ -1,7 +1,7 @@
 
 #CC=gcc -g 
-#CFLAGS=`pkg-config --cflags gtk+-3.0`
-#LIBS=`pkg-config --libs gtk+-3.0` -lm
+CFLAGS=`pkg-config --cflags gtk+-3.0`
+LIBS=`pkg-config --libs gtk+-3.0` -lm
 
 
 .PHONY :all_menus
