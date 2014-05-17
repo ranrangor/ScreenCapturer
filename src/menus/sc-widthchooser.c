@@ -143,7 +143,7 @@ static void sc_width_chooser_get_preferred_width(GtkWidget*widget,gint* min, gin
     SCWidthChooserPriv*priv=SC_WIDTH_CHOOSER(widget)->priv;
 
     priv->width=(priv->n_widths)*(priv->side+GW) - GW + 2*priv->border;
-    g_message("width::%d",priv->width);
+//    g_message("width::%d",priv->width);
     if(min)
         *min=priv->width;
     if(nat)
@@ -244,7 +244,6 @@ static void sc_width_chooser_unrealize(GtkWidget*widget)
 
 static void sc_width_chooser_map(GtkWidget*widget)
 {
-    g_message("Map...");
 
     SCWidthChooserPriv*priv=SC_WIDTH_CHOOSER(widget)->priv;
     GTK_WIDGET_CLASS(sc_width_chooser_parent_class)->map(widget);
@@ -293,15 +292,12 @@ static int calculate_side(int width,int height,int border,int n)
 static void sc_width_chooser_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
 {
 
-    g_message("Size Allocation");
 
     SCWidthChooserPriv*priv=SC_WIDTH_CHOOSER(widget)->priv;
 
     gtk_widget_set_allocation(widget,allocation);
-
     
 //    priv->side=calculate_side(allocation->width,allocation->height,priv->border,4);
-
 
     int width=(priv->side+priv->border)*priv->n_widths+priv->border;
     int height=priv->side+2*priv->border;
@@ -312,9 +308,9 @@ static void sc_width_chooser_size_allocate(GtkWidget*widget,GtkAllocation*alloca
     int col_gap=side+GW;
 
     if(gtk_widget_get_realized(widget)){
-        g_message("Move & Resize");
+//        g_message("Move & Resize");
     
-    int i;
+        int i;
         for(i=0;i<priv->n_widths;i++){
             gdk_window_move_resize(priv->chooser_window[i],pos_col+i*col_gap, pos_row,side,side);
         }
@@ -350,6 +346,7 @@ static gboolean sc_width_chooser_draw(GtkWidget*widget,cairo_t*cr)
             cairo_save(cr);
             gtk_cairo_transform_to_window(cr,widget,priv->chooser_window[i]);
             gtk_render_frame(sc,cr,0,0,side,side);
+            //FIXME state_flag can not affect gtk_render_* correctly.
 //            gtk_style_context_set_state(sc,GTK_STATE_FLAG_ACTIVE);
 //            gtk_render_background(sc,cr,0,0,side,side);
             cairo_restore(cr);
@@ -387,7 +384,7 @@ static gboolean sc_width_chooser_draw(GtkWidget*widget,cairo_t*cr)
             cairo_fill(cr);
             cairo_restore(cr);
         }
-        g_print("\n");
+//        g_print("\n");
     }
 
     return TRUE;
@@ -413,7 +410,6 @@ static int seek_num_of_window(SCWidthChooserPriv* priv, GdkWindow*win)
 
 static gboolean sc_width_chooser_enter(GtkWidget*widget,GdkEventCrossing*e)
 {
-    g_message("Enter notify..");
     SCWidthChooserPriv*priv=SC_WIDTH_CHOOSER(widget)->priv;
 
     int nn=seek_num_of_window(priv,e->window);
@@ -431,7 +427,6 @@ static gboolean sc_width_chooser_enter(GtkWidget*widget,GdkEventCrossing*e)
 
 static gboolean sc_width_chooser_leave(GtkWidget*widget,GdkEventCrossing*e)
 {
-    g_message("Leave notify..");
     SCWidthChooserPriv*priv=SC_WIDTH_CHOOSER(widget)->priv;
 
     priv->current_width=-1;

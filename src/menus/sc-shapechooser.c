@@ -144,7 +144,7 @@ static void sc_shape_chooser_get_preferred_width(GtkWidget*widget,gint* min, gin
     SCShapeChooserPriv*priv=SC_SHAPE_CHOOSER(widget)->priv;
 
     priv->width= priv->side+priv->border+priv->border;
-    g_message("width::%d",priv->width);
+
     if(min)
         *min=priv->width;
     if(nat)
@@ -163,7 +163,6 @@ static void sc_shape_chooser_get_preferred_height(GtkWidget* widget,gint* min, g
 
     priv->height=priv->border*2+priv->side;
 
-    g_message("height::%d",priv->height);
     if(min)
         *min=priv->height;
     if(nat)
@@ -235,7 +234,6 @@ static void sc_shape_chooser_unrealize(GtkWidget*widget)
 
 static void sc_shape_chooser_map(GtkWidget*widget)
 {
-    g_message("Map...");
 
     SCShapeChooserPriv*priv=SC_SHAPE_CHOOSER(widget)->priv;
     GTK_WIDGET_CLASS(sc_shape_chooser_parent_class)->map(widget);
@@ -263,7 +261,6 @@ static void sc_shape_chooser_unmap(GtkWidget*widget)
 static void sc_shape_chooser_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
 {
 
-    g_message("Size Allocation");
 
     SCShapeChooserPriv*priv=SC_SHAPE_CHOOSER(widget)->priv;
 
@@ -281,7 +278,6 @@ static void sc_shape_chooser_size_allocate(GtkWidget*widget,GtkAllocation*alloca
 
 
     if(gtk_widget_get_realized(widget)){
-        g_message("Move & Resize");
     
         gdk_window_move_resize(priv->chooser_window,pos_col, pos_row,side,side);
     }
@@ -296,7 +292,6 @@ static void sc_shape_chooser_size_allocate(GtkWidget*widget,GtkAllocation*alloca
 static gboolean sc_shape_chooser_draw(GtkWidget*widget,cairo_t*cr)
 {
 
-    g_message("Draw...");
 
     SCShapeChooserPriv*priv=SC_SHAPE_CHOOSER(widget)->priv;
 
@@ -304,7 +299,6 @@ static gboolean sc_shape_chooser_draw(GtkWidget*widget,cairo_t*cr)
     GtkAllocation alloc;
     gtk_widget_get_allocation(widget,&alloc);
 
-//    cairo_set_source_rgba(cr,1,0,0,1);
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
 //    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_BUTTON);
@@ -356,7 +350,6 @@ static gboolean sc_shape_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
 static gboolean sc_shape_chooser_enter(GtkWidget*widget,GdkEventCrossing*e)
 {
-    g_message("Enter notify..");
     SCShapeChooserPriv*priv=SC_SHAPE_CHOOSER(widget)->priv;
 
     priv->pointeron=TRUE;
@@ -370,7 +363,6 @@ static gboolean sc_shape_chooser_enter(GtkWidget*widget,GdkEventCrossing*e)
 
 static gboolean sc_shape_chooser_leave(GtkWidget*widget,GdkEventCrossing*e)
 {
-    g_message("Leave notify..");
     SCShapeChooserPriv*priv=SC_SHAPE_CHOOSER(widget)->priv;
 
     priv->pointeron=FALSE;

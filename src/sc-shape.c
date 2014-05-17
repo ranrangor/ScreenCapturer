@@ -45,7 +45,7 @@ GtkWidget*shape_obtain_toolmenu(SCOperable*operable)
     GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     shape->shapechooser=sc_shape_chooser_new(0);
     shape->colorchooser=sc_color_chooser_new(GTK_WIDGET(shape));
-    shape->widthchooser=sc_width_chooser_new(1);
+    shape->widthchooser=sc_width_chooser_new(0);
     GtkWidget*sep0=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     GtkWidget*sep1=gtk_separator_new(GTK_ORIENTATION_VERTICAL);
 
@@ -65,7 +65,6 @@ GtkWidget*shape_obtain_toolmenu(SCOperable*operable)
 static void sc_operable_interface_init(SCOperableInterface* iface)
 {
 
-
     iface->obtain_toolmenu=shape_obtain_toolmenu;
 
 }
@@ -75,7 +74,6 @@ static void sc_operable_interface_init(SCOperableInterface* iface)
 
 static void sc_shape_class_init(SCShapeClass*klass)
 {
-
 
     GtkWidgetClass*wclass=GTK_WIDGET_CLASS(klass);
 
@@ -101,11 +99,7 @@ static void sc_shape_class_init(SCShapeClass*klass)
 static void sc_shape_init(SCShape*obj)
 {
 
-
     GtkWidget* wobj=GTK_WIDGET(obj);
-
-    //obj->shape_type=TYPE_RECT;
-//    obj->shape_type=TYPE_CIRCLE;
    
     gtk_widget_set_has_window(wobj,FALSE);
 
@@ -231,7 +225,6 @@ void print_rect(GdkRectangle*r)
 static gboolean sc_shape_draw(GtkWidget*widget, cairo_t*cr)
 {
 
-//    cairo_set_operator(cr,CAIRO_OPERATOR_OVER);
     SCShape*shape=SC_SHAPE(widget);
 
     int width=gtk_widget_get_allocated_width(widget);
@@ -375,12 +368,11 @@ static void sc_shape_size_allocate(GtkWidget*widget, GtkAllocation*allocation)
 
 void sc_shape_reset(SCShape*shape)
 {
-
+    //move out of canvas
     shape->rectangle.x=-10;
     shape->rectangle.y=-10;
     shape->rectangle.width=0;
     shape->rectangle.height=0;
-
 
 
 }

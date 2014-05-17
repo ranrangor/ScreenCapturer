@@ -262,7 +262,6 @@ static void sc_color_chooser_unrealize(GtkWidget*widget)
 
 static void sc_color_chooser_map(GtkWidget*widget)
 {
-    g_message("Map...");
 
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
     GTK_WIDGET_CLASS(sc_color_chooser_parent_class)->map(widget);
@@ -281,7 +280,6 @@ static void sc_color_chooser_map(GtkWidget*widget)
 static void sc_color_chooser_unmap(GtkWidget*widget)
 {
 
-
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
 
     int i;
@@ -296,7 +294,6 @@ static void sc_color_chooser_unmap(GtkWidget*widget)
 static void sc_color_chooser_size_allocate(GtkWidget*widget,GtkAllocation*allocation)
 {
 
-    g_message("Size Allocation");
 
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
 
@@ -318,10 +315,9 @@ static void sc_color_chooser_size_allocate(GtkWidget*widget,GtkAllocation*alloca
 
 
     if(gtk_widget_get_realized(widget)){
-        g_message("Move & Resize");
     
-    int i;
-    int col;
+        int i;
+        int col;
         for(i=0,col=0;i<priv->n_colors;i+=2){
             gdk_window_move_resize(priv->chooser_window[i],pos_col0+col*col_gap, pos_row0,side,side);
             gdk_window_move_resize(priv->chooser_window[i+1],pos_col0+col*col_gap,pos_row1,side,side);
@@ -364,7 +360,6 @@ static void render_border(cairo_t *cr,int x,int y, int width,int height)//, gboo
 static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
 {
 
-    g_message("Draw...");
 
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
 
@@ -421,20 +416,20 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
 static void sc_color_chooser_do_notify(SCColorChooser*chooser)
 {
-    g_print("Do notify....ColorChooser..\n\n");
+//    g_print("Do notify....ColorChooser..\n\n");
     SCColorChooserPriv*priv=chooser->priv;
 
     GtkWidget*wgt=priv->associated_operator;
 
     if(SC_IS_TEXT(wgt)){
 
-        GtkTextView*tv=sc_text_get_view(wgt);
+        GtkWidget*tv=sc_text_get_view(SC_TEXT(wgt));
         
         if(!tv){
-            g_print("NULL TV..\n");
+            g_warning("NULL TV..\n");
             return; 
         }
-        GtkTextBuffer*buff=gtk_text_view_get_buffer(tv);
+        GtkTextBuffer*buff=gtk_text_view_get_buffer(GTK_TEXT_VIEW(tv));
         g_signal_emit_by_name(buff,"changed",wgt,NULL);
     
     }
@@ -462,7 +457,6 @@ static int seek_num_of_window(SCColorChooserPriv* priv, GdkWindow*win)
 
 static gboolean sc_color_chooser_enter(GtkWidget*widget,GdkEventCrossing*e)
 {
-    g_message("Enter notify..");
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
 
     int nn=seek_num_of_window(priv,e->window);
@@ -480,7 +474,6 @@ static gboolean sc_color_chooser_enter(GtkWidget*widget,GdkEventCrossing*e)
 
 static gboolean sc_color_chooser_leave(GtkWidget*widget,GdkEventCrossing*e)
 {
-    g_message("Leave notify..");
     SCColorChooserPriv*priv=SC_COLOR_CHOOSER(widget)->priv;
 
     priv->current_color=-1;

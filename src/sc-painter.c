@@ -121,18 +121,11 @@ static void sc_painter_init(SCPainter*obj)
 
     GtkWidget* wobj=GTK_WIDGET(obj);
 
-    //obj->painter_type=TYPE_RECT;
-//    obj->painter_type=TYPE_CIRCLE;
    
     gtk_widget_set_has_window(wobj,FALSE);
 
     obj->points=NULL;
 
-    obj->line_width=5; 
-    obj->color.red=1;
-    obj->color.alpha=1;
-
-    
 
 }
 
@@ -245,16 +238,6 @@ void sc_painter_reset(SCPainter*painter)
 
 }
 
-void print_rect(GdkRectangle*r)
-{
-
-    g_print("[x    :%4d, y     :%4d]\n", r->x,r->y);
-    g_print("[width:%4d, height:%4d]\n", r->width, r->height);
-
-
-}
-
-
 static gboolean sc_painter_draw(GtkWidget*widget, cairo_t*cr)
 {
 
@@ -336,16 +319,13 @@ static gboolean sc_painter_release(GtkWidget*widget, GdkEventButton*e)
 
     painter->pressed=FALSE;
 
-    SCCanvas* canvas=sc_operable_get_canvas(widget);
+    SCCanvas* canvas=sc_operable_get_canvas(SC_OPERABLE(widget));
 
     sc_canvas_step_done(canvas);
     sc_painter_reset(painter);
 
 
-
-
     return TRUE;
-
 
 }
 

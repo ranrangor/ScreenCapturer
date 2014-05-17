@@ -11,17 +11,14 @@ static int fontsiz_table[]={8,9,10,12,14,16,18,20,22};
 
 static void changed_notify(GtkWidget*widget,GParamSpec *pspec,gpointer d)
 {
-    g_print("In ChangedNotify:[]%x[] \n",d);
 
-    GtkTextView*tv=sc_text_get_view(d);
-    g_print("Notify::Changed...itv{%x}.\n",tv);
+    GtkWidget*tv=sc_text_get_view(SC_TEXT(d));
     if(!tv)
     {
-        g_print("NULL TV..\n");
+        g_warning("NULL TV..\n");
         return;
-    
     }
-    GtkTextBuffer*buff=gtk_text_view_get_buffer(tv);
+    GtkTextBuffer*buff=gtk_text_view_get_buffer(GTK_TEXT_VIEW(tv));
 
     g_signal_emit_by_name(buff,"changed",d,NULL);
 
@@ -31,8 +28,6 @@ static void changed_notify(GtkWidget*widget,GParamSpec *pspec,gpointer d)
 
 GtkWidget* sc_fontsize_chooser_new(int defaultsize,SCText*text)
 {
-
-    g_print("SCText is [%x]\n\n",text);
 
     GtkWidget*comb=gtk_combo_box_text_new();
 

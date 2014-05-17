@@ -67,8 +67,6 @@ GtkWidget*arrow_obtain_toolmenu(SCOperable*operable)
 static void sc_operable_interface_init(SCOperableInterface* iface)
 {
 
-//    iface->toolbutton=gtk_button_new_with_label("arrow");
-
     iface->obtain_toolmenu=arrow_obtain_toolmenu;
 
 }
@@ -104,15 +102,10 @@ static void sc_arrow_class_init(SCArrowClass*klass)
 static void sc_arrow_init(SCArrow*obj)
 {
 
-
     GtkWidget* wobj=GTK_WIDGET(obj);
-
    
     gtk_widget_set_has_window(wobj,FALSE);
 
-    obj->line_width=5; 
-    obj->color.red=1;
-    obj->color.alpha=1;
     obj->x0=obj->x1=obj->y0=obj->y1=-10;
 }
 
@@ -212,16 +205,7 @@ static void sc_arrow_unmap(GtkWidget*widget)
 
 }
 
-/*
-void print_rect(GdkRectangle*r)
-{
 
-    g_print("[x    :%4d, y     :%4d]\n", r->x,r->y);
-    g_print("[width:%4d, height:%4d]\n", r->width, r->height);
-
-
-}
-*/
 
 static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr)
 {
@@ -243,13 +227,6 @@ static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr)
     
     gdk_cairo_set_source_rgba(cr,&arrow->color);
 
-//    print_rect(&arrow->rectangle);
-
-////
-//
-//    cairo_rectangle(cr,arrow->x0,arrow->y0,arrow->x1-arrow->x0,arrow->y1-arrow->y0);
-//
-//    cairo_stroke(cr);
 //
     cairo_move_to(cr,arrow->x1,arrow->y1);
     cairo_line_to(cr,arrow->x0,arrow->y0);
@@ -297,13 +274,10 @@ static gboolean sc_arrow_draw(GtkWidget*widget, cairo_t*cr)
 static gboolean sc_arrow_press(GtkWidget*widget, GdkEventButton*e)
 {
 
-
     SCArrow*arrow=SC_ARROW(widget);
 
     if(e->button==GDK_BUTTON_PRIMARY){
         arrow->pressed=TRUE;
-//    GtkAllocation alloc;
-//    gtk_widget_get_allocation(widget,&alloc);
 
         arrow->x0=(int)e->x;
         arrow->y0=(int)e->y;

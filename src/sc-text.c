@@ -30,7 +30,6 @@ GtkWidget*text_obtain_toolmenu(SCOperable*operable)
 {
 
     SCText* text=SC_TEXT(operable);
-    g_print("Text in OBMENU is [%x]\n",text);
 
     GtkWidget*box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     text->fontsizechooser=sc_fontsize_chooser_new(12,text);
@@ -54,8 +53,6 @@ GtkWidget*text_obtain_toolmenu(SCOperable*operable)
 static void sc_operable_interface_init(SCOperableInterface* iface)
 {
 
-    iface->toolbutton=gtk_button_new_with_label("text");
-
     iface->obtain_toolmenu=text_obtain_toolmenu;
 
 }
@@ -70,8 +67,6 @@ static void sc_text_class_init(SCTextClass*klass)
     GtkWidgetClass*wclass=GTK_WIDGET_CLASS(klass);
 
     wclass->button_press_event=sc_text_press;
-//    wclass->button_release_event=sc_text_release;
-//    wclass->motion_notify_event=sc_text_motion;
 
 
 }
@@ -84,8 +79,6 @@ static void text_changed(GtkTextBuffer*buffer,gpointer d)
 
     GtkTextIter iter_start,iter_end;
 
-//    GtkTextBuffer*buffer=gtk_text_view_get_buffer(GTK_TEXT_VIEW(tview));
-//gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
     gtk_text_buffer_get_start_iter(buffer,&iter_start);
     gtk_text_buffer_get_end_iter(buffer,&iter_end);
 
@@ -99,6 +92,8 @@ static void text_changed(GtkTextBuffer*buffer,gpointer d)
     g_print("fontsize::[%s]\ncolor::[%s]..\n",fontsiz,colorspec);
     g_print("IterStart:[%d]  IterEnd:[%d]..\n",iter_start,iter_end);
 
+//FIXME CAN NOT APPLY CORRECTLY
+//
     gtk_text_buffer_apply_tag_by_name(buffer,fontsiz,&iter_start,&iter_end);
     gtk_text_buffer_apply_tag_by_name(buffer,colorspec,&iter_start,&iter_end);
 
@@ -114,20 +109,17 @@ static GtkWidget* new_tview(SCText* text)
 {
     GtkWidget*tview;
 
-
-    //GtkTextIter iter_start,iter_end;
-
-
     tview=gtk_text_view_new();
     
     GtkTextBuffer*buffer=text_view_buffer_init(GTK_TEXT_VIEW(tview),text);
     
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(tview),GTK_WRAP_NONE);
+
+    //transparent background
     GdkRGBA opacity={0,};
     gtk_widget_override_background_color(tview,0,&opacity);
 
     g_signal_connect(G_OBJECT(buffer),"changed",G_CALLBACK(text_changed),text);
-
 
     return tview;
 
@@ -138,20 +130,14 @@ static void sc_text_init(SCText*obj)
 {
 
     GtkWidget* wobj=GTK_WIDGET(obj);
-
-//    priv->text_view=new_tview();
    
     gtk_widget_set_has_window(wobj,TRUE);
-
-    obj->color.red=1;
-    obj->color.alpha=1;
 
 }
 
 
 static gboolean sc_text_press(GtkWidget*widget, GdkEventButton*e)
 {
-//    g_message("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
 
     FloatBorder*fb=FLOAT_BORDER(widget);
     GdkWindow*window=gtk_widget_get_window(widget);
@@ -202,9 +188,6 @@ static gboolean sc_text_press(GtkWidget*widget, GdkEventButton*e)
     }
 
     return GTK_WIDGET_CLASS(sc_text_parent_class)->button_press_event(widget,e);
-//        return FALSE;
-    
-
 
 }
 
@@ -228,20 +211,15 @@ void sc_text_reset(SCText*text)
 {
     
     FloatBorder*fb=FLOAT_BORDER(text);
-   
-//    if(text->text_view)
-//        float_border_remove(fb,text->text_view);
 
     float_border_show_border(fb,TRUE);
 
     text->text_view=new_tview(text);
     text->is_focus=TRUE;
     gtk_widget_show(text->text_view);
-//    gtk_widget_grab_focus(text->text_view);
 
     float_border_put_with_size(fb,text->text_view,text->position.x,text->position.y,50,22);
 
-    g_message("Reset..");
 }
 
 
@@ -272,7 +250,6 @@ static void create_color_tags(GtkTextBuffer*buffer,char** table,int num_colors)
 
     int i;
     for(i=0; i<num_colors; i++){
-
 //        g_print("Color Tag:: %s \n",table[i]);
         gdk_rgba_parse(&color,table[i]);
         gtk_text_buffer_create_tag(buffer,table[i],"foreground-rgba",&color,NULL);
@@ -304,9 +281,7 @@ static void create_fsiz_tags(GtkTextBuffer*buffer,int* table,int num_fsiz)
 static GtkTextBuffer* text_view_buffer_init(GtkTextView* view,SCText*text)
 {
 
-
     GtkTextIter iter_start,iter_end;
-//    GtkTextTag*tag=gtk_text_tag_new("tt");
 
 
     GtkTextBuffer*buffer=gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
@@ -325,10 +300,6 @@ static GtkTextBuffer* text_view_buffer_init(GtkTextView* view,SCText*text)
 
     create_fsiz_tags(buffer, fsiztable,length);
 
-//    g_print("CREATE TAGS OK>>>>.>>>>>\n");
-
-//    gtk_text_buffer_apply_tag_by_name(buffer,"fsiz18",&iter_start,&iter_end);
-//    gtk_text_buffer_apply_tag_by_name(buffer,"#ff0000",&iter_start,&iter_end);
 
     g_free(fsiztable);
     g_strfreev(colortable);
