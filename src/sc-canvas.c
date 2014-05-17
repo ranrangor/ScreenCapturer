@@ -854,6 +854,7 @@ void canvas_done_cb(GtkWidget*widget,gpointer d)
     SCCanvas* canvas=SC_CANVAS(d);
     g_message("Copy to clipborder..");
     sc_canvas_done(canvas);
+        sc_canvas_exit(canvas);
 
 }
 
@@ -1240,6 +1241,13 @@ void sc_canvas_done(SCCanvas* canvas)
     SCCanvasPriv*priv=canvas->priv;
 //TODO 
 //save to clipborder
+    GtkClipboard*clipboard;
+    clipboard=gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+
+    GdkPixbuf*copypf=sc_canvas_get_pixbuf(canvas);
+    gtk_clipboard_set_image(clipboard,copypf);
+
+    g_object_unref(copypf);
 
 
 }
