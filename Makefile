@@ -18,4 +18,4 @@ all:
 
 clean:
 	cd src && ${MAKE} clean_src
-	cd icons && ${MAKE} clean_iconsdata
+#	cd icons && ${MAKE} clean_iconsdata
