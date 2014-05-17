@@ -1,6 +1,6 @@
 
 #CC=clang 
-#CFLAGS=`pkg-config --cflags gtk+-3.0`
+CFLAGS=`pkg-config --cflags gtk+-3.0`
 
 .PHONY:clean_fb
 

@@ -1,5 +1,5 @@
 
-CC=gcc -g 
+#CC=clang -g 
 CFLAGS=`pkg-config --cflags gtk+-3.0`
 LIBS=`pkg-config --libs gtk+-3.0` -lm
 OBJS= main.o sc-app.o sc-window.o sc-canvas.o sc-operable.o sc-operators.o\

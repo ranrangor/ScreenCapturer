@@ -1,6 +1,6 @@
 
-CC=gcc -g 
-CFLAGS=`pkg-config --cflags gtk+-3.0`
+#CC=gcc -g 
+#CFLAGS=`pkg-config --cflags gtk+-3.0`
 #LIBS=`pkg-config --libs gtk+-3.0` -lm
 
 
