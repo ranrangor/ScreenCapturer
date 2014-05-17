@@ -1871,6 +1871,7 @@ static gboolean draw_child(FloatBorderChild*fbc,gpointer d)
             fbc->position[REF_CORNER].y+HWND_THICKNESS);
 
 //    cairo_restore(cr);
+/*
     cairo_set_source_rgba(cr,0.9,0.9,0.9,0.1);
     cairo_set_line_width(cr,HWND_THICKNESS);
    
@@ -1880,6 +1881,7 @@ static gboolean draw_child(FloatBorderChild*fbc,gpointer d)
             fbc->position[REF_CORNER].y + HWND_THICKNESS);
 
     cairo_stroke(cr);
+    */
     }
 
 
