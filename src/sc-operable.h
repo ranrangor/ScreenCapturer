@@ -15,7 +15,7 @@
 
 
 
-typedef struct _SCCanvas SCCanvas;
+//typedef struct _SCCanvas SCCanvas;
 
 
 typedef struct _scOperable SCOperable;
