@@ -4,7 +4,6 @@
 
 
 
-
 static void sc_button_set_style(GtkButton* button)
 {
 
@@ -230,9 +229,75 @@ GtkWidget*sc_image_new_by_size(const guint8* data,int width,int height)
 }
 
 
+char* get_pixel (GdkPixbuf *pixbuf, int x, int y,GdkRGBA*c)//, guchar red, guchar green, guchar blue, guchar alpha) 
+{ 
+
+    int width, height, rowstride, n_channels; 
+    guchar *pixels, *p;
+    guint red,green,blue;
+
+    n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+
+    g_assert (gdk_pixbuf_get_colorspace (pixbuf) == GDK_COLORSPACE_RGB); 
+    g_assert (gdk_pixbuf_get_bits_per_sample (pixbuf) == 8); 
+//    g_assert (gdk_pixbuf_get_has_alpha (pixbuf)); 
+//    g_assert (n_channels == 4);
+
+    width = gdk_pixbuf_get_width (pixbuf); 
+    height = gdk_pixbuf_get_height (pixbuf);
+
+    x=CLAMP(x,0,width);
+    y=CLAMP(y,0,height);
+
+
+    rowstride = gdk_pixbuf_get_rowstride (pixbuf); 
+    pixels = gdk_pixbuf_get_pixels (pixbuf);
+
+    p = pixels + y * rowstride + x * n_channels; 
+    red=p[0]; 
+    green=p[1]; 
+    blue=p[2]; 
+
+    c->red=red;
+    c->green=green;
+    c->blue=blue;
+    c->alpha=1;
+
+//    g_print("R:%d G:%d B:%d\n",(unsigned int)red,(unsigned int)green,(unsigned int) blue);
+
+    return g_strdup_printf(" RGB:(%d,%d,%d)",(int)red,(int)green,(int)blue);
+
+}
 
 
 
+static void put_pixel (GdkPixbuf *pixbuf, int x, int y, guchar red, guchar green, guchar blue, guchar alpha) 
+{ 
+    int width, height, rowstride, n_channels; guchar *pixels, *p;
+
+    n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+
+    g_assert (gdk_pixbuf_get_colorspace (pixbuf) == GDK_COLORSPACE_RGB); 
+    g_assert (gdk_pixbuf_get_bits_per_sample (pixbuf) == 8); 
+    g_assert (gdk_pixbuf_get_has_alpha (pixbuf)); 
+    g_assert (n_channels == 4);
+
+    width = gdk_pixbuf_get_width (pixbuf); 
+    height = gdk_pixbuf_get_height (pixbuf);
+
+    g_assert (x >= 0 && x < width);
+    g_assert (y >= 0 && y < height);
+
+    rowstride = gdk_pixbuf_get_rowstride (pixbuf); 
+    pixels = gdk_pixbuf_get_pixels (pixbuf);
+
+    p = pixels + y * rowstride + x * n_channels; 
+    p[0] = red; 
+    p[1] = green; 
+    p[2] = blue; 
+    p[3] = alpha; 
+
+}
 
 
 

@@ -26,10 +26,6 @@ NEEDFIX
 NEEDTODO
 --------
 
-### Module `SCWindow'
-
-* Add desciption of current point's color to preview window.
-
 ### Module `SCCanvas'
 
 * Display current region's size .

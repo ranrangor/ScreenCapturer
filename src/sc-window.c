@@ -5,6 +5,7 @@
 #include"sc-operators.h"
 #include<gdk-pixbuf/gdk-pixbuf.h>
 #include<time.h>
+#include"sc-utils.h"
 #include"../config.h"
 
 
@@ -415,10 +416,10 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
     cairo_rectangle(cr,priv->preview_position.x, priv->preview_position.y,
             priv->preview_position.width, priv->preview_position.height);
 
-    cairo_set_source_rgba(cr,0.8,0,0.6,1);
+    cairo_set_source_rgba(cr,0,0,0,1);
     cairo_set_line_width(cr,2);
     cairo_stroke_preserve(cr);
-
+    cairo_set_line_join(cr,CAIRO_LINE_JOIN_ROUND);
     gdk_cairo_set_source_pixbuf(cr,pfview,priv->preview_position.x,priv->preview_position.y);
     cairo_fill(cr);
 
@@ -444,23 +445,29 @@ static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr)
     //draw frame
     cairo_rectangle(cr,priv->preview_position.x, priv->preview_position.y+priv->preview_position.height,
             priv->preview_position.width, priv->preview_desc_height);
-    cairo_set_source_rgba(cr,0.8,0,0.6,1);
+    cairo_set_source_rgba(cr,0,0,0,1);
     cairo_set_line_width(cr,2);
     cairo_stroke_preserve(cr);
 
-    cairo_set_source_rgba(cr,0,0.2,0,0.7);
+    cairo_set_source_rgba(cr,0,0,0,0.8);
     cairo_fill(cr);
     //draw desc
     cairo_select_font_face(cr,"Sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr,12);
-    cairo_set_source_rgb(cr,1,0,0);
-    gchar*desc=g_strdup_printf(" [%dx%d] ",cur_rect->width,cur_rect->height);
+    cairo_set_font_size(cr,11);
+    cairo_set_source_rgb(cr,1,1,1);
     
+    gchar*desc=g_strdup_printf(" [%dx%d]",cur_rect->width,cur_rect->height);
     cairo_move_to(cr,priv->preview_position.x,priv->preview_position.y+priv->preview_position.height+12);
     cairo_show_text(cr,desc);
     g_free(desc);
 
+    GdkRGBA fc;
+    char*colordesc=get_pixel(priv->fullpf,priv->px,priv->py, &fc);
 
+    cairo_move_to(cr,priv->preview_position.x,priv->preview_position.y+priv->preview_position.height+24);
+//    gdk_cairo_set_source_rgba(cr,&fc);
+    cairo_show_text(cr,colordesc);
+    g_free(colordesc);
 
 draw_childrens:
 

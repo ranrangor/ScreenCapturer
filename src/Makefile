@@ -22,13 +22,13 @@ main.o:main.c
 sc-app.o: sc-app.c sc-app.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-sc-window.o: sc-window.c sc-window.h ../config.h
+sc-window.o: sc-window.c sc-window.h sc-utils.h ../config.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-sc-canvas.o: sc-canvas.c sc-canvas.h ../config.h
+sc-canvas.o: sc-canvas.c sc-canvas.h sc-utils.h ../config.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-sc-operators.o: sc-operators.c sc-operators.h
+sc-operators.o: sc-operators.c sc-operators.h sc-utils.h
 	${CC} ${CFLAGS} -c $< -o $@
 
 sc-operble.o: sc-operable.c sc-operable.h
@@ -46,6 +46,8 @@ sc-arrow.o: sc-arrow.c sc-arrow.h
 sc-painter.o: sc-painter.c sc-painter.h
 	${CC} ${CFLAGS} -c $< -o $@
 
+sc-utils.o: sc-utils.c sc-utils.h
+	${CC} ${CFLAGS} -c $< -o $@
 #
 #menus/sc-colorchooser.o: menus/sc-colorchooser.c menus/sc-colorchooser.h
 #	${CC} ${CFLAGS} -c $< -o $@
@@ -69,8 +71,6 @@ sc-painter.o: sc-painter.c sc-painter.h
 include menus/Makefile
 include floatBorder/Makefile
 
-sc-utils.o: sc-utils.c sc-utils.h
-	${CC} ${CFLAGS} -c $< -o $@
 
 #floatBorder/floatBorder.o: floatBorder/floatBorder.c floatBorder/floatBorder.h
 #	${CC} ${CFLAGS} -c $< -o $@
