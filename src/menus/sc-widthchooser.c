@@ -332,7 +332,7 @@ static gboolean sc_width_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
 
-//    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
+    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
     int side=priv->side;//(priv->height-priv->border*3)/2;
     
 

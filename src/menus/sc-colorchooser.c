@@ -141,7 +141,7 @@ static void sc_color_chooser_init(SCColorChooser*obj)
     init_color(obj);
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
-    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_FRAME);
+    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_BUTTON);
 
     gtk_widget_set_has_window(widget,FALSE);
 
@@ -371,7 +371,7 @@ static gboolean sc_color_chooser_draw(GtkWidget*widget,cairo_t*cr)
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
 //    gtk_style_context_add_class(sc,"button");
-//    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
+    gtk_render_background(sc,cr,0,0,alloc.width,alloc.height);
 
     int side=priv->side;//(priv->height-priv->border*3)/2;
 

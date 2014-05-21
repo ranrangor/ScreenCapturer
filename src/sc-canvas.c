@@ -190,7 +190,7 @@ static void sc_canvas_init(SCCanvas* scobj)
 
 
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
-    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_NOTEBOOK);
+    gtk_style_context_add_class(sc,GTK_STYLE_CLASS_BUTTON);
 
 
 }
@@ -517,15 +517,20 @@ static gboolean sc_canvas_draw(GtkWidget* widget,cairo_t*cr)
     GtkStyleContext*sc=gtk_widget_get_style_context(widget);
     
     if(gtk_cairo_should_draw_window(cr,priv->menuwindow)){
+//        g_print("Draw menu window..");
     cairo_save(cr);
     gtk_cairo_transform_to_window(cr,widget,priv->menuwindow);
     gtk_render_background(sc,cr,0,0,priv->menu_position.width,priv->menu_position.height);
+//    cairo_set_source_rgb(cr,0.7,0.7,0.7);
+//    cairo_rectangle(cr,0,0,priv->menu_position.width,priv->menu_position.height);
+//    cairo_fill(cr);
     gtk_render_frame(sc,cr,0,0,priv->menu_position.width,priv->menu_position.height);
     cairo_restore(cr);
     
     }
 
     if(gtk_cairo_should_draw_window(cr,priv->toolmenuwindow)){
+//        g_print("Draw toolmenu window..");
     cairo_save(cr);
     gtk_cairo_transform_to_window(cr,widget,priv->toolmenuwindow);
     gtk_render_background(sc,cr,0,0,priv->toolmenu_position.width,priv->toolmenu_position.height);

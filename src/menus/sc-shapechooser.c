@@ -311,8 +311,10 @@ static gboolean sc_shape_chooser_draw(GtkWidget*widget,cairo_t*cr)
     int side=priv->side;//(priv->height-priv->border*3)/2;
 
     cairo_save(cr);
-    gtk_cairo_transform_to_window(cr,widget,priv->chooser_window);
-    gtk_render_background(sc,cr,0,0,priv->side,priv->side);
+//    gtk_cairo_transform_to_window(cr,widget,priv->chooser_window);
+    gtk_render_background(sc,cr,0,0,
+            gtk_widget_get_allocated_width(widget),
+            gtk_widget_get_allocated_height(widget));
 //    gtk_render_frame(sc,cr,0,0,priv->side,priv->side);
     cairo_restore(cr);
 
