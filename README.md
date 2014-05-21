@@ -17,6 +17,7 @@ NEEDFIX
 ###Module `SCText'
 
 * Occasionally can not hide border and cursor in time,and save the widget appearance incorrectly.
+    ![](./b1.png)
 
 * With GtkTextView, gtk_buffer_apply_tag_* can not apply style to current buffer as expect.
 
@@ -24,6 +25,7 @@ NEEDFIX
 ### Module `SCCanvas'
 
 * When selecting  top-left of screen, the poped menu & toolmenu can not render background correctly(it seems to rendered with selected region).
+    ![](./b0.png)
 
 
 NEEDTODO
