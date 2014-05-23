@@ -24,7 +24,16 @@ sc_operable_default_init(SCOperableInterface*iface)
 
 }
 
+/* Need to revise all operaters
+ * rewrite there *_reset() functions;
+ * */
+void sc_operable_reset(SCOperable*operable)
+{
 
+    g_return_val_if_fail(SC_IS_OPERABLE(operable),NULL);
+
+//    SC_OPERABLE_GET_INTERFACE(operable)->reset(operable);
+}
 
 GtkWidget* sc_operable_obtain_toolmenu(SCOperable*operable)
 {
