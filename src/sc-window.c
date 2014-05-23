@@ -52,6 +52,10 @@ static gboolean sc_window_button_release(GtkWidget*widget,GdkEventButton*e);
 static gboolean sc_window_draw(GtkWidget*widget,cairo_t*cr);
 //static void sc_window_show(GtkWidget*widget);
 
+
+static void sc_window_finalize(GObject*object);
+
+
 static void preview_position_dispose(SCWindow*scwin);
 
 
@@ -89,6 +93,9 @@ static void sc_window_class_init(SCWindowClass* klass)
     wklass->button_release_event=sc_window_button_release;
 
 //    wklass->show=sc_window_show;
+    GObjectClass*oclass=G_OBJECT_CLASS(klass);
+    oclass->finalize=sc_window_finalize;
+
 
 
     g_type_class_add_private(klass,sizeof(SCWindowPriv));
@@ -120,6 +127,32 @@ static void sc_window_init(SCWindow* scwin)
 
 
 }
+
+static void sc_window_finalize(GObject*object)
+{
+
+    SCWindowPriv*priv=SC_WINDOW(object)->priv;
+
+    G_OBJECT_CLASS(sc_window_parent_class)->finalize(object);
+
+    GList*lst=priv->rects;
+    for( ;lst!=NULL;lst=lst->next){
+        g_slice_free(GdkRectangle,lst->data);
+    }
+    g_list_free(priv->rects);
+    priv->rects=NULL;
+
+    g_object_unref(priv->fullpf);
+    priv->fullpf=NULL;
+
+
+
+}
+
+
+
+
+
 
 /*
 static gboolean rect_selected(SCWindow*scwin)
